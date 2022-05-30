@@ -29,7 +29,7 @@ Clues as to this motivation can be found in how applications end up handling int
 
 (diagram of all architectural components)
 
-The logical model of Anoma operates on the basis of networked Turing machines.
+The logical model of Anoma operates on the basis of networked Turing machines. Nodes are a single class, although different roles will have different requirements.
 
 Taxonomy of Anoma concepts
 - Node
@@ -39,7 +39,7 @@ Taxonomy of Anoma concepts
 - Intent gossip layer
 	- Virtual network overlay for intents
 	- Could also be used for other data applications wish to locally broadcast?
-	- 
+	- Broadcasts data with local relevancy policies
 - Solver
 	- Role attempting to combine intents by searching the space of transactions and states
 - Transaction
@@ -146,4 +146,4 @@ State model
 Anoma assumes clients are _stateful_, they are treated as components of the distributed system
 - e.g. messages will only be sent once
 - message history can be reconstructed with historical archives
-- 
+
