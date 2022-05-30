@@ -26,6 +26,7 @@ header-includes:
 Clues as to this motivation can be found in how applications end up handling intents anyways (0x, Wyvern, etc.).
 
 # Architectural overview
+
 (diagram of all architectural components)
 
 The logical model of Anoma operates on the basis of networked Turing machines.
@@ -37,6 +38,8 @@ Taxonomy of Anoma concepts
 	- An intent is ephemeral data containing information about preferences
 - Intent gossip layer
 	- Virtual network overlay for intents
+	- Could also be used for other data applications wish to locally broadcast?
+	- 
 - Solver
 	- Role attempting to combine intents by searching the space of transactions and states
 - Transaction
@@ -117,9 +120,30 @@ requires private execution environment
 
 ### Resource pricing
 
+### Public goods funding
+
+
 # Programming model
+Why are there applications at all?
+Applications describe particular forms, on which it is necessary to coordinate in order to execute discrete logic. 
+Applications reflect a particular semantics.
 
+What is an application on Anoma?
+- Intent formats
+- Application state validity predicate
+	- Including proofs of correctness
+- User validity predicate components
+- Solver algorithms
+- Renderable interface
+	- For now, this is just data
+	- Maybe semantic connections in the future
+	- Anoma as a DA layer can host
 
+Security model
+- In Anoma, users distrust applications
 
-
-
+State model
+Anoma assumes clients are _stateful_, they are treated as components of the distributed system
+- e.g. messages will only be sent once
+- message history can be reconstructed with historical archives
+- 
