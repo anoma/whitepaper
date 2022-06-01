@@ -30,8 +30,11 @@ Clues as to this motivation can be found in how applications end up handling int
 (diagram of all architectural components)
 
 The logical model of Anoma operates on the basis of networked Turing machines. Nodes are a single class, although different roles will have different requirements.
+Open network with permissionless entry and untrusted intermediaries.
 
-Taxonomy of Anoma concepts
+Nodes in anoma are assumed to be deterministic (except for randomness generated for use in cryptography the value of which does not change the results of execution) and stateful
+
+Lexicon of Anoma concepts
 - Node
 	- Networked Turing machine
 - Intent
@@ -76,6 +79,7 @@ Spatiotemporal locality: No absolute clock, per Einstein, clocks are relative. S
 
 Limited computational speed: NP != P, searching for satisfying computations must be specialised to the particular form and is to be exposed in the programming interface. Quality-of-service guarantees require bounded compute. 
 
+Limited computational speed motivates the separation of the role of solver from the role of settlement. Spatiotemporal locality and heterogeneous trust motivate separation of security and concurrency domains. 
 
 # Intent lifecycle
 
