@@ -94,11 +94,20 @@ For each example:
 
 ## Private bartering
 
-(non-fungible & fungible tokens with properties)
+- train tickets, festival tickets, hotel tickets
+- actors: alice, bob, charlie, daniella
+- intents: alice + bob to buy, charlie + daniella to sell
+- VPs involved: ticket VPs, personal VPs
+- Privacy properties: parties to trade know trade, plus solver, 
 
 ## Capital-efficient AMMs
 
 - liquidity ranges
+
+## Quadratic funding
+
+intents
+projects have a minimum to do anything
 
 ## Plural money
 
@@ -151,3 +160,4 @@ Anoma assumes clients are _stateful_, they are treated as components of the dist
 - e.g. messages will only be sent once
 - message history can be reconstructed with historical archives
 
+# 
