@@ -1,5 +1,5 @@
 ---
-title: 'Anoma: An intent-centric distributed database architecture'
+title: 'Anoma: An intent-centric Byzantine-fault-tolerant distributed database architecture'
 author: Heliax AG
 fontsize: 9pt
 date: \textit{Prerelease, \today}
@@ -19,14 +19,23 @@ header-includes:
 
 # Motivation
 
-- Intent-centric design philosophy: preferences over state transitions
-- Declarative architecture designed to settle intents where possible, while minimising informational externalities
-- Homogeneous architecture, heterogeneous security
-- Minimise architectural assumptions, constrain the design space
+- systems design is an attempt at synthesis between constructive possibility enumeration of which systems are possible and purpose-directed inquiry of what a system is for, and what guarantees it can provide as a black-box abstraction to users based on an understanding of what they want. failure to correctly specify the former will result in incohererent or inconsistent systems, while failure to correctly understand the latter will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, or systems on top of which "weak" application layer constructions ruin the intended properties of the protocol architecture
+- at the same time, if the architecture is too specific, and different architectures are designed for seemingly different use-cases which do not in fact require separate architectures, systems will be unnecessarily incompatible
+	- there is a specific level of abstraction proper to the generalisation of a set of use-cases
+- anoma is an attempt to synthesise between the constructive possibility of Byzantine-fault-tolerant distributed database systems and an understanding of what they are for that is at the proper level to allow for the correct amount of generality while capturing use practices in order to provide end-to-end guarantees
+- intent-centric design philosophy
+	- theoretical basis: why would one use a distrubuted database ~ must have some import
+		- settle intents where possible, while minimising externalities
+	- practical basis: existing examples (wyvern, 0x, cowswap) all end up with intents
+- homogeneous architecture, heterogeneous security
+	- architecture is a benevolent monopoly, modularly split, tradeoffs can be parameterised as runtime configuration choices
+	- security (who) is a political decision and doesn't have a single right answer, depends on the semantics and context of use
+	- compare: internet routers, IP protocols, HTTP vs. _who_ to connect to
+	- yet the internet fails to provide interoperability in practice due to control of data and properietary protocols at the application layer
 
-Clues as to this motivation can be found in how applications end up handling intents anyways (0x, Wyvern, etc.).
+# Architectural design rationale
 
-# Architectural motivation
+Anoma's architecture, from the basis of intent-centricity and heterogeneous security, aims to make as few assumptions as possible, and no decisions. 
 
 For the purpose of elucidation, consider a logically centralised database with a trusted operator possessed of infinite compute. Actors submit intents to this database, which accepts them one at a time in a total order. When an intent is submitted, if any combination of intents can be mutually satisfied by any state change, the operator enacts the state change (if multiple state changes satisfy, the operator arbitrarily chooses one), which subsequent queries to the database immediately reflect. If not, the operator stores the intent. If it were possible, this architecture would be ideal: state is unified, intents are always settled immediately, and settlement fairness operates on a simple first-in-first-out principle. Anoma aimes to asymptotically approximate this architecture given the constraints of heterogeneous trust, spatiotemporal locality, and limited computational speed. Let us consider each of these in turn.
 
@@ -110,9 +119,10 @@ An _application_ is a semantic domain governing the form and logic of a particul
 - Application
   - State
   - VPs (~asset VPs)
+  - User VP components
   - Intent formats
   - Solver algorithms
-
+  - Interface(s)
 
 # Intent lifecycle
 
@@ -137,19 +147,31 @@ For each example:
 ### Capital-efficient AMMs
 
 - liquidity ranges
+- actors: alice, bob, charlie
+- intents: alice + bob to provide liquidity in different ranges, charlie to trade
+- VPs involved: personal VPs incl. components, asset VPs
+- Privacy properties: parties to trade know trade, plus solver, charlie can probably be solver
 
-### Quadratic funding
+### Quadratic public-goods funding
 
-intents
-projects have a minimum to do anything
+- actors: funding provider, project creators, many individual funders
+- intents: funding provider to respect quadractic formula, creators to require minimum in order to do anything, individual funders to contribute iff. funding is provided by FP
+- VPs involved: funding provider VP, personal VPs, asset VPs
+- Privacy properties: solver knows, funding provider can probably be solver
 
 ### Plural money
 
-explain to implement matt prewitt's post on Anoma
+- actors: communities, individuals within communities
+- intents: salsa transactions, monetary transfers in & outside of community
+- VPs involved: community currency VPs, personal VPs, SALSA asset VPs
+- Privacy properties: solvers within communities, probably
 
 #### Private auctions
 
-requires private execution environment
+- actors: item seller, parties bidding
+- intents: sale, bids
+- VPs involved: auction VP, personal VPs
+- privacy properties: item public, identities private, bids private
 
 # Component descriptions
 
@@ -166,8 +188,6 @@ requires private execution environment
 ### Governance
 
 ### Resource pricing
-
-### Public goods funding
 
 # Programming model
 
@@ -198,5 +218,10 @@ Anoma assumes clients are _stateful_, they are treated as components of the dist
 - message history can be reconstructed with historical archives
 
 # Future directions
+
+- exploring more detailed tradeoffs along the privacy / counterparty discovery axis
+- encrypted matchmaking
+- extension of verification into the interface domain
+- extension of verification into the hardware domain
 
 # References
