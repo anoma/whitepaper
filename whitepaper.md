@@ -22,7 +22,7 @@ header-includes:
 - systems design is an attempt at synthesis between constructive possibility enumeration of which systems are possible and purpose-directed inquiry of what a system is for, and what guarantees it can provide as a black-box abstraction to users based on an understanding of what they want. failure to correctly specify the former will result in incohererent or inconsistent systems, while failure to correctly understand the latter will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, or systems on top of which "weak" application layer constructions ruin the intended properties of the protocol architecture
 - at the same time, if the architecture is too specific, and different architectures are designed for seemingly different use-cases which do not in fact require separate architectures, systems will be unnecessarily incompatible
 	- there is a specific level of abstraction proper to the generalisation of a set of use-cases
-- anoma is an attempt to synthesise between the constructive possibility of Byzantine-fault-tolerant distributed database systems and an understanding of what they are for that is at the proper level to allow for the correct amount of generality while capturing use practices in order to provide end-to-end guarantees
+- anoma is an attempt to synthesise between the constructive possibility of Byzantine-fault-tolerant distributed database systems and an understanding of what they are for that is at the proper level to allow for the correct amount of generality while capturing use practices in order to provide end-to-end guarantees.
 - intent-centric design philosophy
 	- theoretical basis: why would one use a distrubuted database ~ must have some import
 		- settle intents where possible, while minimising externalities
@@ -177,17 +177,44 @@ For each example:
 
 ## Consensus
 
+hpaxos
+ibc 
+
 ## Execution
 
+transparent, shielded, private
+VP architecture
+cross-execution-environment communication
+
+information theoretic models
+VM, ZKP system, HE/MPC (?) system
+
+how to instantiate
+WASM, Plonkup, some HE
+
 ## Gossip
+
+intent gossip, transaction gossip
 
 ## Fractal instance components
 
 ### Sybil resistance
 
+proof-of-stake, proof-of-authority, liquid democracy based on identity substrate
+
 ### Governance
 
+not about irreversible state changes
+unplanned changes
+governance has sybil resistance constraints
+ultimate governance is social consensus
+
 ### Resource pricing
+
+need a sybil resistance mechanism for expensive compute operations on open network
+eip 1559
+ordering & execution priced separately
+can also be identity-based quotas
 
 # Programming model
 
