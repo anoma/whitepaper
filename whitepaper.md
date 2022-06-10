@@ -102,9 +102,11 @@ A complete state transaction, referred to as a _transaction_, is a function from
 
 ## Mempool
 
-The _mempool_ is a virtual dense partitioned overlay network for transactions. The mempool is partitioned on the basis of security and concurrency domains. 
+The _mempool_ is a virtual dense partitioned overlay network for transactions. The mempool is partitioned on the basis of security and concurrency domains (fractal instances), where nodes participating in the mempool gossip only transactions for fractal instances which they are interested in. By contrast to the intent gossip network, the mempool is dense in the sense that validators of a particular fractal instance must receive all of the transactions destinated for that instance. 
 
--  Data availability domain
+##  Data availability domain
+
+A _data availability domain_ is a logical clock and data availability layer whereby intents in a particular batch can be made available to solvers who must compete to offer the best solution by a measurable criterion. 
 
 ## Fractal instance
 
