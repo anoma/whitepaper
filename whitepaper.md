@@ -55,29 +55,13 @@ Compared to architectures centered around smart contracts that could encode arbi
 
 As the volume and diversity of user intents continues to grow, Anoma's architecture is designed to process any intents generically, including the yet-to-be disovered ones. Combined with its ability to handle already-known intents with stronger security performance guarantees, and better developer and end-user experience, we believe that Anoma can open up a world for not only upgrading existing decentralized applications with stronger guarantees and different trade-offs, but also enable new kinds of decentralized applications and novel economics that existing architectures cannot.
 
-Notes from before: 
-- Intent-centric design philosophy: preferences over state transitions
-- Declarative architecture designed to settle intents where possible, while minimising informational externalities
-- Homogeneous architecture, heterogeneous security
-- Minimise architectural assumptions, constrain the design space
-
-Additions from Christopher:
-- systems design is an attempt at synthesis between constructive possibility enumeration of which systems are possible and purpose-directed inquiry of what a system is for, and what guarantees it can provide as a black-box abstraction to users based on an understanding of what they want. failure to correctly specify the former will result in incohererent or inconsistent systems, while failure to correctly understand the latter will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, or systems on top of which "weak" application layer constructions ruin the intended properties of the protocol architecture
-- at the same time, if the architecture is too specific, and different architectures are designed for seemingly different use-cases which do not in fact require separate architectures, systems will be unnecessarily incompatible
-	- there is a specific level of abstraction proper to the generalisation of a set of use-cases
-- anoma is an attempt to synthesise between the constructive possibility of Byzantine-fault-tolerant distributed database systems and an understanding of what they are for that is at the proper level to allow for the correct amount of generality while capturing use practices in order to provide end-to-end guarantees.
-- intent-centric design philosophy
-	- theoretical basis: why would one use a distrubuted database ~ must have some import
-		- settle intents where possible, while minimising externalities
-	- practical basis: existing examples (wyvern, 0x, cowswap) all end up with intents
-
 (comment: cut this)
 
 ### Homogeneous architecture / heterogeneous security
 
 The second design principle is homogeneous architecture / heterogeneous security. Architecture -- the abstractions and relations constituting the structure of a system -- is syntactical, possessed of properties and syntaxes but no particular semantics in relation to the exterior world. Convergence on a singular architecture saves time and verification costs without constraining users to particular choices. Security -- the choice of who and how to trust in the operation of a distributed system -- is a decision inseparable from the particular semantics of a particular context of use. Security can be economically abstracted to a certain degree, by limiting the information available to and consqeuent choicemaking capabilities of system operators, but operators will always have choices of how and from whom to accept messages, when to elect to include them in blocks or other aggregations over which they vote, and when to cease voting or otherwise alter normal operational procedures in response to exceptional circumstances. Who to trust with these responsibilities depends on what the state in the database _represents_ in the real world, and alignment with the interests of users of the database requires mutual interests beyond the purely economic ones. The TCP/IP protocol stack follows this principle, in that the various layers of the internet protocol are standardised, but the choice of who to connect to and what data to entrust them with is left to the user, and different users can make different choices. In practice, however, the internet often fails to provide this interoperability and user-directed security in practice due to control of data and proprietary platforms at the application layer (e.g. Android and iOS app stores).
 
-Beyond these two design principles, Anoma tries to make as few assumptions as possible. (or transition some other way)
+Beyond these two design principles of intent-centricity and homogeneous architecture / heterogeneous security, Anoma tries to make no decisions -- all other choices are a matter of modularisation and runtime configuration parameters.
 
 # Architectural design rationale
 
@@ -122,7 +106,6 @@ A _solver_ is a node which runs a _solver algorithm_ for matching intents of a p
 A _data availability domain_ is an 
 - must run on fractal instance for ordering guarantees
 - in principal can be multiple separate ones per fractal instance
-- 
 
 ## Transaction
 
@@ -142,7 +125,7 @@ A security (and necessarily concurrency) domain, referred to as a _fractal insta
 
 ## Shard
 
-A _shard_ is a concurrency domain within a security domain.
+A _shard_ is a concurrency domain within a security domain. 
 
 ## Consensus
  
@@ -162,21 +145,13 @@ It is important to note that the delineation between kinds of execution environm
 
 ## Application
 
-An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with.
-
-- Application
-  - State
-  - VPs (~asset VPs)
-  - User VP components
-  - Intent formats
-  - Solver algorithms
-  - Interface(s)
+An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. An application consists of _state_, which may be partitioned across multiple fractal instances and shards within those instances, _application validity predicates_, which govern changes to the application's state, _user validity predicate components_, which may be included by the user in order to authorize certain interactions with the application, _intent formats_, which allow intents to be created by clients, reasoned about by solvers, and processed by validity predicates, _solver algorithms_, which allow solvers to craft transactions satisfying intents from an application (and possibly other applications), and _interfaces_, which provide users visual, spatial, and temporal abstractions for interacting with the application.
 
 # Programming model
 
-Why are there applications at all?
-Applications describe particular forms, on which it is necessary to coordinate in order to execute discrete logic.
-Applications reflect a particular semantics.
+One considering the architecture of Anoma from the perspective of users with preferences over states of the system might ask the question of why are there applications at all? Cannot users merely articulate their preferences and the system enact them, without further component intermediation? In principle, they can, but the search space of solvers and difficulty of coordinating the relations between the state of the ledger and state of the world would be computationally intractable without coordination on particular forms of representation and particular logics of preference expression and settlement. Applications describe these particular forms, on which it is necessary to coordinate in order to express, match, and settle intents, and in order to provide simple and accurate interfaces for users. 
+
+## Application components
 
 What is an application on Anoma?
 
@@ -190,27 +165,19 @@ What is an application on Anoma?
   - Maybe semantic connections in the future
   - Anoma as a DA layer can host
 
-Security model
+## Application security model
 
-- In Anoma, users distrust applications
+In Anoma, users distrust applications. Applications are never granted un-restricted access to modify a user's state. All state entries carry an explicit owner, and the validity predicate associated with that owner must authorise all changes to that state. Instead of authorising a la `transferFrom`, users add components to their validity predicates which allow for specific interactions with a specific application (which can then be perfomed non-interactively from the perspective of the user, if they have granted the application license to do so). These components can be altered or revoked at any time, and allow for "defense-in-depth" (e.g. prevent transfers of more than X within time bound t). 
 
-State model
-Anoma assumes clients are _stateful_, they are treated as components of the distributed system
+## Application state model
 
-- e.g. messages will only be sent once
-- message history can be reconstructed with historical archives
+Anoma assumes clients are _stateful_ - they are treated as components of the distributed system. Messages will only be sent once, and can be marked as delivered, in which case they will not be kept around. Message history can be reconstructed by reprocessing historical transaction archives.
 
 # Intent lifecycle
 
 ## Usage examples
 
-For each example:
-
-- Actors involved
-- Intents involved
-- Validity predicates involved
-- Intent flow
-- Privacy properties
+The architecture of Anoma is suitable for any application desiring to provide counterparty discovery and settlement for particular forms of preferences over a particular semantic domain. Here we sketch four applications: private bartering, capital-efficient automated market makers, quadratic public goods funding, and plural money. For each example, we include the actors, intents, validity predicates, intent flow, and privacy properties.
 
 ### Private bartering
 
