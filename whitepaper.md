@@ -29,7 +29,6 @@ Compared to architectures centered around smart contracts that could encode arbi
 
 As the volume and diversity of user intents continues to grow, Anoma's architecture is designed to process any intents generically, including the yet-to-be disovered ones. Combined with its ability to handle already-known intents with stronger security performance guarantees, and better developer and end-user experience, we believe that Anoma can open up a world for not only upgrading existing decentralized applications with stronger guarantees and different trade-offs, but also enable new kinds of decentralized applications and novel economics that existing architectures cannot.
 
----
 Notes from before: 
 - Intent-centric design philosophy: preferences over state transitions
 - Declarative architecture designed to settle intents where possible, while minimising informational externalities
