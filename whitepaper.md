@@ -4,7 +4,7 @@ author: Heliax AG
 fontsize: 9pt
 date: \textit{Prerelease, \today}
 abstract: |
-	blahblah
+	Anoma is a suite of protocols and mechanisms for self-contained and self-sovereign coordination in the presence of Byzantine actors. Traditional distributed settlement platforms are imperative, designed around transactions: state transitions which are ordered and executed. By contrast, Anoma is declarative, designed around intents and validity predicates: ephemeral and enduring preference functions over possible states which describe which states of the system an actor would prefer. Anoma’s fractal instance architecture partitions a single logical state across separate operational security zones, allowing users to interact with each other where they share trust assumptions and isolate themselves from faults elsewhere in the network graph. Vertical integration of the two phases of counterparty discovery and settlement allows the protocol to provide end-to-end privacy, safety, and liveness guarantees.
 urlcolor: cyan
 header-includes:
     - \usepackage{fancyhdr}
@@ -17,47 +17,61 @@ header-includes:
     - \fancyfoot[LE,RO]{\thepage}
 ---
 
-# Background and Motivations
+# Background and motivations
 
-An *intent* is an expression of what a user wants to achieve whenever they interact with a protocol, for instance "transfer X from A to B" or "trade X for Y". So far all distributed ledger protocols (cryptocurrencies, smart contract platforms or application-specific Layer 1s) were designed with *transactions* as their most fundamental unit. Independent to what the actual user intent entailed, clients (e.g. wallets or other interfaces) are required to transform the intent into a transaction so the protocols are able to process it. In reality, most user intents are more complex than what can be represented in a transaction, for example "transfer X from A to B *privately*", "transfer X from A to B *where B receives Y*" or "trade X for Y *at the best market rate possible*".
-
-Overtime, many protocols and clients have emerged so that more complex user intents can be interpreted and encoded into transactions to be settled on-chain. In the domain of fungible token trading, examples include the work from Flashbots or the Coincidence of Wants (CoW) Protocol, which via custom components at the peer-to-peer layer (mev-relay, CoWs, Batch Auctions), client (mev-geth), RPC layer (Flashbots protect) - integrated to grant the properties of "best on-chain price" and a "notion of fairness" via MEV mitigation mechanisms. In the domain of non-fungible token commerce, examples include the Wyvern DEX Protocol and more recently the Seaport Protocol, which supports orders that include more traits, often needed when a user intent involves NFTs. While we expect more protocols and components like the above to proliferate and diverisfy with specialisation in interpreting application-specific intents within the architectural boundaries of smart contract plaforms, there hasn't been any vertically-integrated protocol yet able to interpret and process intents natively and generically.
-
-In Anoma's architecture, intents are the most fundamental unit and it is designed to handle intents generically. An intent encodes the user's preferred state transition, where the preferences can be as simple as a plain transfer or as complex and expressive as one that requires arbitrary computation. This intent-centric philosophy results in a declarative architecture that is designed to settle intents wherever possible – as they were defined by the user *and nothing else*, thereby minimising informational externalities, which extend beyond the loss of anonymity or the ability for certain parties to benefit disproportionally from users' actions without adding comparable value in the process. By adopting a declarative paradigm, Anoma can grant users more control and realise their intents with not only stronger privacy, security, and performance guarantees, but also more expressivity and flexibility in articulating their intents to an extent that they can define arbitrarily both the what and the how the intents are processed.
-
-Compared to architectures centered around smart contracts that could encode arbitrary state transition functions, Anoma's declarative programming paradigm provides application developers a better scoped problem space, as they will only need to reason through the compatibility between user intents and validity predicates, and set the precedence for building safer by construction applications – or applications that do not work as the developer ended up writing logic that violated corresponding validity predicates. Anoma's architecture opens up a new way of designing decentralized applications that benefit from the expressivity and composability of intents, the expressivity and guarantees of validity predicates, as well as a more efficient settlement mechanism derived from the design of the state mechaine and ledger that makes the separation between computation and verification more explicit, where computation can be handled off-chain (and can be thereby parallelised), while only verification is handled on-chain (validity predicates are checked before state transitions are accepted). Users benefit from a better user experience when interacting with applications built following this declarative programming paradigm, as they interact directly with their own intents and define their own validity predicates - making it easier to understand and reason through what they are doing without requiring them to understand the underlying stack.
-
-As the volume and diversity of user intents continues to grow, Anoma's architecture is designed to process any intents generically, including the yet-to-be disovered ones. Combined with its ability to handle already-known intents with stronger security performance guarantees, and better developer and end-user experience, we believe that Anoma can open up a world for not only upgrading existing decentralized applications with stronger guarantees and different trade-offs, but also enable new kinds of decentralized applications and novel economics that existing architectures cannot.
-
----
-Notes from before: 
-- Intent-centric design philosophy: preferences over state transitions
-- Declarative architecture designed to settle intents where possible, while minimising informational externalities
-- Homogeneous architecture, heterogeneous security
-- Minimise architectural assumptions, constrain the design space
+## On information systems design
 
 Realization of discrete information systems which can be safely used as tools requires synthesis of bottom-up possibility-directed construction and top-down purpose-directed design. Bottom-up possibility-directed search of the possibility space determines which discrete systems can be constructed with certain properties, while top-down purpose-directed design provides constraints which a system must satisfy in order to provide safe, comprehensible, and accurate black-box abstractions to users which they can use to employ the system as a tool to do what they want. Failure to correctly search, constrain, and specify the discrete system will result in incoherent or inconsistent systems, while failure to correctly understand the models of the system which users will see and interact on the basis of will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, leading to inadvertent consequences when the systems are used without an accurate understanding of the ramifications of use. 
 
 These twin perspectives must be considered holistically, from the discrete system on one end and from the user's interfaces and understanding on the other. An elegant and safe protocol basis is insufficient if weak application-layer constructions ruin the intended properties of the protocol architecture by routing around them at the application layer, purposefully obfuscating choices intended to be granted to the user, or misleading users with interfaces conveying relations of data, control, and influence to which the underlying system does not adhere. This might lead one to favour minimalist vertically integrated architectures which do very little on purpose. At the same time, if the architecture is too specific, and different use-cases which require only differences at the application layer but could utilise the same lower-level primitives instead use incompatible vertically-integrated protocol stacks, systems will be unnecessarily incompatible, and effort verifying multiple syntactically-varying but structurally-isomorphic lower-level protocol components will be wasted. Taking in mind both the constructive possibilities and the purpose-directed design, there is a specific tree of abstractions proper to the generalisation of a set of use-cases, and it is the task of systems designers to articulate and specify it.
 
+## Situating Anoma
+
 Anoma is an attempt to synthesize between the constructive search of possible Byzantine-fault-tolerant privacy-preserving distributed database architectures and an understanding of how users will use these systems for various kinds of coordination that aims for a suitable level of generality and configuration of abstractions in order to provide end-to-end security, correctness, and privacy guarantees for the real practices of use. A modicum of consideration for the context of use entails the two key design principles of Anoma: intent-centric design and homogeneous architecture / heterogeneous security. These principles are not necessitated by the constructive possibilities of systems but are rather chosen to align the properties which the user-facing black box abstractions of Anoma can provide with the properties required for safe usage in the expected topology of real-world deployment. Both rest on what is in turn the essential distinction between constructive search and purpose-directed design: the subjectivity of semantics. 
 
 Data, whether stored in replicated distributed database entires, Excel spreadsheet cells, or writing on a piece of paper, has meaning which cannot be derived from its form. While the form may have a certain structure, if the data refers to entities in the world outside the database, these relations of referring cannot be found in the data itself, for any particular relations are possible. Yet, if the database is a tool to be used in order to aid in manipulation of entities in the world outside the database, it is not merely the particular form of or syntax of the data but also the knowledge of these relations that one must possess in order to use the database as such an aid. 
 
-Why would anyone use a distributed database at all? To users who take the database as a tool, the semantics of data stored therein constitute their correspondence to entities outside the database, and the utility of the database as a tool is merely any ways in which it can aid in the manipulation of these entities. The key distinction between a _distributed_ database and a non-distributed one is fault tolerance: the database can continue to operate and preserve its syntactical rules in the presence of certain limited faults. This is only useful in a context of use where there are multiple users who want to coordinate (a single user could have used a private local database), and where these users want to preserve their ability to coordinate in the presence of Byzantine actors. Grounds for coordination are preferences over states of the world (otherwise there would be no reason to coordinate) and the inability of any actor acting alone to enact them (otherwise action could be taken directly). Anoma starts from this basis, conceptualising these preferences over states of the world in discrete form as _intents_. 
+### Intent-centricity
 
+The first design principle of Anoma is _intent-centricity_, and it follows from considering the following question: why would anyone use a distributed database at all? To users who take the database as a tool, the semantics of data stored therein constitute their correspondence to entities outside the database, and the utility of the database as a tool is merely any ways in which it can aid in the manipulation of these entities. The key distinction between a _distributed_ database and a non-distributed one is fault tolerance: the database can continue to operate and preserve its syntactical rules in the presence of certain limited faults. This is only useful in a context of use where there are multiple users who want to coordinate (a single user could have used a private local database), and where these users want to preserve their ability to coordinate in the presence of Byzantine actors. Grounds for coordination are preferences over states of the world (otherwise there would be no reason to coordinate) and the inability of any actor acting alone to enact them (otherwise action could be taken directly). Anoma starts from this basis, conceptualising these preferences over states of the world in discrete form as _intents_, and crafting an architecture to facilitate counterparty discovery (finding other actors with whom one could coordinate) and settlement (enacting state changes preferred and reachable by a set of actors acting jointly). 
 
+An *intent* is an expression of what a user wants to achieve whenever they interact with a protocol, for instance "transfer X from A to B" or "trade X for Y". So far all distributed ledger protocols (cryptocurrencies, smart contract platforms or application-specific Layer 1s) were designed with *transactions* as their most fundamental unit. Independent to what the actual user intent entailed, clients (e.g. wallets or other interfaces) are required to transform the intent into a transaction so the protocols are able to process it. In reality, most user intents are more complex than what can be represented in a transaction, for example "transfer X from A to B *privately*", "transfer X from A to B *where B receives Y*" or "trade X for Y *at the best market rate possible*".
 
+(comment: describe a bit more what intents are, counterparty discovery and settlement)
 
-- intent-centric design philosophy
-	- theoretical basis: why would one use a distrubuted database ~ must have some import
-		- settle intents where possible, while minimising externalities
-	- practical basis: existing examples (wyvern, 0x, cowswap) all end up with intents
+Overtime, many protocols and clients have emerged so that more complex user intents can be interpreted and encoded into transactions to be settled on-chain. In the domain of fungible token trading, examples include the work from Flashbots or the Coincidence of Wants (CoW) Protocol, which via custom components at the peer-to-peer layer (mev-relay, CoWs, Batch Auctions), client (mev-geth), RPC layer (Flashbots protect) - integrated to grant the properties of "best on-chain price" and a "notion of fairness" via MEV mitigation mechanisms. In the domain of non-fungible token commerce, examples include the Wyvern DEX Protocol and more recently the Seaport Protocol, which supports orders that include more traits, often needed when a user intent involves NFTs. While we expect more protocols and components like the above to proliferate and diverisfy with specialisation in interpreting application-specific intents within the architectural boundaries of smart contract plaforms, there hasn't been any vertically-integrated protocol yet able to interpret and process intents natively and generically.
+
+(comment: add 0x, more people will know it than Seaport)
+
+(comment: cut first part of last sentence, note that all of these protocols do counterparty discovery and use the blockchain for settlement)
+
+In Anoma's architecture, intents are the most fundamental unit and it is designed to handle intents generically. An intent encodes the user's preferred state transition, where the preferences can be as simple as a plain transfer or as complex and expressive as one that requires arbitrary computation. This intent-centric philosophy results in a declarative architecture that is designed to settle intents wherever possible – as they were defined by the user *and nothing else*, thereby minimising informational externalities, which extend beyond the loss of anonymity or the ability for certain parties to benefit disproportionally from users' actions without adding comparable value in the process. By adopting a declarative paradigm, Anoma can grant users more control and realise their intents with not only stronger privacy, security, and performance guarantees, but also more expressivity and flexibility in articulating their intents to an extent that they can define arbitrarily both the what and the how the intents are processed.
+
+(comment: contrast transactions (imperative) with intents (declarative))
+
+Compared to architectures centered around smart contracts that could encode arbitrary state transition functions, Anoma's declarative programming paradigm provides application developers a better scoped problem space, as they will only need to reason through the compatibility between user intents and validity predicates, and set the precedence for building safer by construction applications – or applications that do not work as the developer ended up writing logic that violated corresponding validity predicates. Anoma's architecture opens up a new way of designing decentralized applications that benefit from the expressivity and composability of intents, the expressivity and guarantees of validity predicates, as well as a more efficient settlement mechanism derived from the design of the state mechaine and ledger that makes the separation between computation and verification more explicit, where computation can be handled off-chain (and can be thereby parallelised), while only verification is handled on-chain (validity predicates are checked before state transitions are accepted). Users benefit from a better user experience when interacting with applications built following this declarative programming paradigm, as they interact directly with their own intents and define their own validity predicates - making it easier to understand and reason through what they are doing without requiring them to understand the underlying stack.
+
+(comment: describe application interface a bit more, contrast directly instead of using adjectives like "better")
+
+As the volume and diversity of user intents continues to grow, Anoma's architecture is designed to process any intents generically, including the yet-to-be disovered ones. Combined with its ability to handle already-known intents with stronger security performance guarantees, and better developer and end-user experience, we believe that Anoma can open up a world for not only upgrading existing decentralized applications with stronger guarantees and different trade-offs, but also enable new kinds of decentralized applications and novel economics that existing architectures cannot.
+
+(comment: cut this)
+
+### Homogeneous architecture, heterogeneous security
+
+The second design principle is homogeneous architecture, heterogeneous security. 
+
+... 
+
+- can copy some text from the GH issue
+- can move some text from the next section
 - homogeneous architecture, heterogeneous security
 	- architecture is a benevolent monopoly, modularly split, tradeoffs can be parameterised as runtime configuration choices
 	- security (who) is a political decision and doesn't have a single right answer, depends on the semantics and context of use
 	- compare: internet routers, IP protocols, HTTP vs. _who_ to connect to
 	- yet the internet fails to provide interoperability in practice due to control of data and properietary protocols at the application layer
+
+Beyond these two design principles, Anoma tries to make as few assumptions as possible. (or transition some other way)
 
 # Architectural design rationale
 
@@ -152,6 +166,34 @@ An _application_ is a semantic domain governing the form and logic of a particul
   - Solver algorithms
   - Interface(s)
 
+# Programming model
+
+Why are there applications at all?
+Applications describe particular forms, on which it is necessary to coordinate in order to execute discrete logic.
+Applications reflect a particular semantics.
+
+What is an application on Anoma?
+
+- Intent formats
+- Application state validity predicate
+  - Including proofs of correctness
+- User validity predicate components
+- Solver algorithms
+- Renderable interface
+  - For now, this is just data
+  - Maybe semantic connections in the future
+  - Anoma as a DA layer can host
+
+Security model
+
+- In Anoma, users distrust applications
+
+State model
+Anoma assumes clients are _stateful_, they are treated as components of the distributed system
+
+- e.g. messages will only be sent once
+- message history can be reconstructed with historical archives
+
 # Intent lifecycle
 
 ## Usage examples
@@ -243,34 +285,6 @@ need a sybil resistance mechanism for expensive compute operations on open netwo
 eip 1559
 ordering & execution priced separately
 can also be identity-based quotas
-
-# Programming model
-
-Why are there applications at all?
-Applications describe particular forms, on which it is necessary to coordinate in order to execute discrete logic.
-Applications reflect a particular semantics.
-
-What is an application on Anoma?
-
-- Intent formats
-- Application state validity predicate
-  - Including proofs of correctness
-- User validity predicate components
-- Solver algorithms
-- Renderable interface
-  - For now, this is just data
-  - Maybe semantic connections in the future
-  - Anoma as a DA layer can host
-
-Security model
-
-- In Anoma, users distrust applications
-
-State model
-Anoma assumes clients are _stateful_, they are treated as components of the distributed system
-
-- e.g. messages will only be sent once
-- message history can be reconstructed with historical archives
 
 # Future directions
 
