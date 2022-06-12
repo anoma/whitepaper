@@ -1,5 +1,5 @@
 ---
-title: 'Anoma: An intent-centric Byzantine-fault-tolerant distributed database architecture'
+title: 'Anoma: An intent-centric, privacy-preserving, Byzantine-fault-tolerant distributed database architecture'
 author: Heliax AG
 fontsize: 9pt
 date: \textit{Prerelease, \today}
@@ -36,11 +36,12 @@ Notes from before:
 - Homogeneous architecture, heterogeneous security
 - Minimise architectural assumptions, constrain the design space
 
-Additions from Christopher:
-- systems design is an attempt at synthesis between constructive possibility enumeration of which systems are possible and purpose-directed inquiry of what a system is for, and what guarantees it can provide as a black-box abstraction to users based on an understanding of what they want. failure to correctly specify the former will result in incohererent or inconsistent systems, while failure to correctly understand the latter will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, or systems on top of which "weak" application layer constructions ruin the intended properties of the protocol architecture
-- at the same time, if the architecture is too specific, and different architectures are designed for seemingly different use-cases which do not in fact require separate architectures, systems will be unnecessarily incompatible
-	- there is a specific level of abstraction proper to the generalisation of a set of use-cases
-- anoma is an attempt to synthesise between the constructive possibility of Byzantine-fault-tolerant distributed database systems and an understanding of what they are for that is at the proper level to allow for the correct amount of generality while capturing use practices in order to provide end-to-end guarantees.
+Realization of discrete information systems which can be safely used as tools requires synthesis of bottom-up possibility-directed construction and top-down purpose-directed design. Bottom-up possibility-directed search of the possibility space determines which discrete systems can be constructed with certain properties, while top-down purpose-directed design provides constraints which a system must satisfy in order to provide safe, comprehensible, and accurate black-box abstractions to users which they can use to employ the system as a tool to do what they want. Failure to correctly search, constrain, and specify the discrete system will result in incoherent or inconsistent systems, while failure to correctly understand the models of the system which users will see and interact on the basis of will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, leading to inadvertent consequences when the systems are used without an accurate understanding of the ramifications of use. 
+
+These twin perspectives must be considered holistically, from the discrete system on one end and from the user's interfaces and understanding on the other. An elegant and safe protocol basis is insufficient if weak application-layer constructions ruin the intended properties of the protocol architecture by routing around them at the application layer, purposefully obfuscating choices intended to be granted to the user, or misleading users with interfaces conveying relations of data, control, and influence to which the underlying system does not adhere. This might lead one to favour minimalist vertically integrated architectures which do very little on purpose. At the same time, if the architecture is too specific, and different use-cases which require only differences at the application layer but could utilise the same lower-level primitives instead use incompatible vertically-integrated protocol stacks, systems will be unnecessarily incompatible, and effort verifying multiple syntactically-varying but structurally-isomorphic lower-level protocol components will be wasted. Taking in mind both the constructive possibilities and the purpose-directed design, there is a specific tree of abstractions proper to the generalisation of a set of use-cases, and it is the task of systems designers to articulate and specify it.
+
+Anoma is an attempt to synthesize between the constructive search of possible Byzantine-fault-tolerant privacy-preserving distributed database architectures and an understanding of how users will use these systems for various kinds of coordination that aims for a suitable level of generality and configuration of abstractions in order to provide end-to-end security, correctness, and privacy guarantees for the real practices of use. 
+
 - intent-centric design philosophy
 	- theoretical basis: why would one use a distrubuted database ~ must have some import
 		- settle intents where possible, while minimising externalities
