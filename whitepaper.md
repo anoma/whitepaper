@@ -73,20 +73,9 @@ Additions from Christopher:
 
 (comment: cut this)
 
-### Homogeneous architecture, heterogeneous security
+### Homogeneous architecture / heterogeneous security
 
-The second design principle is homogeneous architecture, heterogeneous security. 
-
-... 
-
-- can copy some text from the GH issue
-- can move some text from the next section
-
-- homogeneous architecture, heterogeneous security
-	- architecture is a benevolent monopoly, modularly split, tradeoffs can be parameterised as runtime configuration choices
-	- security (who) is a political decision and doesn't have a single right answer, depends on the semantics and context of use
-	- compare: internet routers, IP protocols, HTTP vs. _who_ to connect to
-	- yet the internet fails to provide interoperability in practice due to control of data and properietary protocols at the application layer
+The second design principle is homogeneous architecture / heterogeneous security. Architecture -- the abstractions and relations constituting the structure of a system -- is syntactical, possessed of properties and syntaxes but no particular semantics in relation to the exterior world. Convergence on a singular architecture saves time and verification costs without constraining users to particular choices. Security -- the choice of who and how to trust in the operation of a distributed system -- is a decision inseparable from the particular semantics of a particular context of use. Security can be economically abstracted to a certain degree, by limiting the information available to and consqeuent choicemaking capabilities of system operators, but operators will always have choices of how and from whom to accept messages, when to elect to include them in blocks or other aggregations over which they vote, and when to cease voting or otherwise alter normal operational procedures in response to exceptional circumstances. Who to trust with these responsibilities depends on what the state in the database _represents_ in the real world, and alignment with the interests of users of the database requires mutual interests beyond the purely economic ones. The TCP/IP protocol stack follows this principle, in that the various layers of the internet protocol are standardised, but the choice of who to connect to and what data to entrust them with is left to the user, and different users can make different choices. In practice, however, the internet often fails to provide this interoperability and user-directed security in practice due to control of data and proprietary platforms at the application layer (e.g. Android and iOS app stores).
 
 Beyond these two design principles, Anoma tries to make as few assumptions as possible. (or transition some other way)
 
