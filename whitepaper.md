@@ -221,9 +221,11 @@ The Anoma architecture is complex and requires many individually intricate subco
 - ibc 
 - what is the abstract interface
 
+~ typhon
+
 ### Ordering
 
-
+~ typhon
 
 ### Execution
 
@@ -239,15 +241,24 @@ WASM, Plonkup, some HE
 
 abstract interface
 
+~ typhon EE
+~ taiga EE
+~ future unified EE
+~ vampIR
+
 ## Gossip
 
 intent gossip, transaction gossip, 
+
+~ what is this system, for now built on libp2p
 
 ## Fractal instance components
 
 ### Sybil resistance
 
 proof-of-stake, proof-of-authority, liquid democracy based on identity substrate
+
+~ namada PoS
 
 ### Governance
 
@@ -256,12 +267,16 @@ unplanned changes
 governance has sybil resistance constraints
 ultimate governance is social consensus
 
+~ namada governance
+
 ### Resource pricing
 
 need a sybil resistance mechanism for expensive compute operations on open network
 eip 1559
 ordering & execution priced separately
 can also be identity-based quotas
+
+~ namada eip1559
 
 ## Application development
 
