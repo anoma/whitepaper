@@ -154,7 +154,7 @@ One considering the architecture of Anoma from the perspective of users with pre
 
 An application on the Anoma architecture consists of intent formats, an application state validity predicate, user validity predicate components, solver algorithms, and one or many user interfaces. _Intent formats_ describe the form and semantics of particular intents utilised by the application, which must be created by the user interfaces, understood by intent gossip nodes, matched by solvers, and validated by the application's validity predicates. The _application state validity predicate_ encodes the relation governing valid state transitions of the application's state. _User validity predicate components_ encode the relations which users can approve in order to allow for safe interactions with this application. _Solver algorithms_ instruct a solver how to match this application's intents and form valid transactions. Finally, _user interfaces_ present users with a graphical or textual view of and controller for the application in question. 
 
-### Application portability
+## Application portability
 
 By default, applications are portable across fractal instances, and application state validity predicates may also reason about security and concurrency domains in order to allow for safe interaction between users of an application across these domains. 
 
@@ -164,7 +164,7 @@ Although nothing ties a particular interface to a particular application, Anoma'
 
 In Anoma, users distrust applications. Applications are never granted un-restricted access to modify a user's state. All state entries carry an explicit owner, and the validity predicate associated with that owner must authorise all changes to that state. Instead of authorising a la `transferFrom`, users add components to their validity predicates which allow for specific interactions with a specific application (which can then be perfomed non-interactively from the perspective of the user, if they have granted the application license to do so). These components can be altered or revoked at any time, and allow for "defense-in-depth" (e.g. prevent transfers of more than X within time bound t). 
 
-### Application state model
+## Application state model
 
 Anoma assumes clients are _stateful_ - they are treated as components of the distributed system. Messages will only be sent once, and can be marked as delivered, in which case they will not be kept around. Message history can be reconstructed by reprocessing historical transaction archives.
 
@@ -213,12 +213,17 @@ The architecture of Anoma is suitable for any application desiring to provide co
 
 # Component descriptions
 
+The Anoma architecture is complex and requires many individually intricate subcomponents which can be instantiated in a variety of ways with different performance, complexity, and ergonomic tradeoffs. Here we sketch the abstract interfaces required of necessary subcomponents and summarise our current development directions in instantiating them.
+
 ## Consensus
 
-hpaxos
-ibc 
+- hpaxos
+- ibc 
+- what is the abstract interface
 
 ### Ordering
+
+
 
 ### Execution
 
@@ -232,9 +237,11 @@ VM, ZKP system, HE/MPC (?) system
 how to instantiate
 WASM, Plonkup, some HE
 
+abstract interface
+
 ## Gossip
 
-intent gossip, transaction gossip
+intent gossip, transaction gossip, 
 
 ## Fractal instance components
 
@@ -255,6 +262,10 @@ need a sybil resistance mechanism for expensive compute operations on open netwo
 eip 1559
 ordering & execution priced separately
 can also be identity-based quotas
+
+## Application development
+
+- Juvix
 
 # Future directions
 
