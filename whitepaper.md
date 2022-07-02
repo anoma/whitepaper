@@ -231,7 +231,11 @@ The architecture of Anoma is suitable for any application desiring to provide co
 hpaxos
 ibc 
 
-## Execution
+### Ordering
+
+### Execution
+
+
 
 transparent, shielded, private
 VP architecture
