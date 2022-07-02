@@ -109,15 +109,9 @@ The _intent gossip layer_ is a virtual sparse overlay network for dissemination 
 
 A _solver_ is a node which runs a _solver algorithm_ for matching intents of a particular form (or set of forms). Any node can play the role of solver. Solvers connect to the intent gossip network, accept intents of forms which they understand and which they expect to be worth the storage and bandwidth costs (perhaps due to a fee or an expected spread from a match), and run the solver algorithm to search the space of possible transactions based on the current state and intent pool, find subsets of intents which can be matched, and generate transactions which match them. 
 
-## Data availability domain
-
-A _data availability domain_ is an 
-- must run on fractal instance for ordering guarantees
-- in principal can be multiple separate ones per fractal instance
-
 ## Transaction
 
-A complete state transaction, referred to as a _transaction_, is a function from the current state to a new state.
+A complete state transaction, referred to as a _transaction_, is a function from the current state to a new state. 
 
 ## Mempool
 
@@ -127,29 +121,26 @@ The _mempool_ is a virtual dense partitioned overlay network for transactions. T
 
 A _data availability domain_ is a logical clock and data availability layer whereby intents in a particular batch can be made available to solvers who must compete to offer the best solution by a measurable criterion. 
 
+## Security domain
+
+A _security domain_ is a set of cryptographically identified nodes executing a particular state transition function in consensus, for which finality and correctness hold under a particular assumption of a certain fraction of nodes behaving according to protocol (generally n >= 3f + 1, but this can vary). Correctness of state transitions can be verified separately, but finality cannot, as it is impossible to prove the nonexistence of data (another finalised block at the same height, for example).
+
+## Concurrency domain
+
+A _concurrency domain_ is a total ordering over a set of transactions within the domain which may be partially ordered or unordered with respect to other concurrency domains. Concurency domains always operate within particular security domains (since the total order is enforced by the consensus of the security domain). 
+
 ## Fractal instance
 
-A security (and necessarily concurrency) domain, referred to as a _fractal instance_, is an XXX
+A _fractal instance_ is an instance of the Anoma consensus and execution protocols operated by a set of networked validators. In general, fractal instances are security domains, in that they are operated by a particular set of validators, of which the user must trust a quorum; concurrency domains, in that they maintain a full order of only the transactions which they execute; and data availability domains, in that external observers can query the fractal instance to retrieve parts of its state. Fractal instances are sovereign, in that they do not depend on any other part of the fractal instance graph for continued correct execution, although their validator sets may overlap, a property which can be exploited in certain cases to provide cross-instance atomic transactions. Fractal instances, in order to be compatible with all features of the network, must implement the Anoma consensus and settlement protocols according to spec, but they can vary in Sybil resistance mechanisms, execution pricing, and local governance of protocol versioning, economic distribution regime, and irregular state transitions.
 
-## Shard
-
-A _shard_ is a concurrency domain within a security domain. 
 
 ## Consensus
  
-_Consensus_ is an algorithm for agreement between many parties (some possibly Byzantine) that forms a security domain and quantizes time.
+_Consensus_ is an algorithm for agreement between many parties (some possibly Byzantine) that forms a security domain and quantizes time. 
 
 ## Execution
 
-An _execution environment_ is an algorithm for taking the state and a set of transactions and applying the transactions to the state
-
-The _transparent execution environment_ is an execution environment where all data is public to execution nodes and observers. 
-
-The _shielded execution environment_ is an execution environment where all data is private to execution nodes and observers, where only single-user private state is supported and privacy is provided through zero-knowledge proofs.
-
-The _private execution environment_ is an execution environment where all data is private to execution nodes and observers, where multi-user private state is supported through direct computation over encrypted data.
-
-It is important to note that the delineation between kinds of execution environments made here is purely on the basis of privacy and state model. Technologies such as zero-knowledge rollups, for example, can in principle be used with any of these environments.
+An _execution environment_ is an algorithm for taking the state and a set of transactions and applying the transactions to the state. Anoma provides a _unified execution environment_ which can handle transparent, shielded, and private state transitions. _Transparent_ data is public to execution nodes and observers. _Shielded_ data is private to execution nodes and observers, but known to a single user, who can prove properties of it using zero-knowledge proofs. _Private_ data is known by no one independently and is computed and stored in encrypted form using various forms of homomorphic encryption. Anoma provides a general framework for reasoning about the privacy of data independently of the kind of verification performed, but performance characteristics of the underlying cryptographic schemes will determine the practical feasibility and execution costs of various applications. It is important to note that the delineation here is purely on the basis of state privacy. Technologies such as zero-knowledge rollups, for example, can be used with transparent, shielded, and private state transitions (at least in principle).
 
 ## Application
 
@@ -161,23 +152,19 @@ One considering the architecture of Anoma from the perspective of users with pre
 
 ## Application components
 
-What is an application on Anoma?
+An application on the Anoma architecture consists of intent formats, an application state validity predicate, user validity predicate components, solver algorithms, and one or many user interfaces. _Intent formats_ describe the form and semantics of particular intents utilised by the application, which must be created by the user interfaces, understood by intent gossip nodes, matched by solvers, and validated by the application's validity predicates. The _application state validity predicate_ encodes the relation governing valid state transitions of the application's state. _User validity predicate components_ encode the relations which users can approve in order to allow for safe interactions with this application. _Solver algorithms_ instruct a solver how to match this application's intents and form valid transactions. Finally, _user interfaces_ present users with a graphical or textual view of and controller for the application in question. 
 
-- Intent formats
-- Application state validity predicate
-  - Including proofs of correctness
-- User validity predicate components
-- Solver algorithms
-- Renderable interface
-  - For now, this is just data
-  - Maybe semantic connections in the future
-  - Anoma as a DA layer can host
+### Application portability
+
+By default, applications are portable across fractal instances, and application state validity predicates may also reason about security and concurrency domains in order to allow for safe interaction between users of an application across these domains. 
+
+Although nothing ties a particular interface to a particular application, Anoma's intent gossip network is capable of acting as a data availability layer for interface code, in a way which allows secure synchronised interface and application versions. 
 
 ## Application security model
 
 In Anoma, users distrust applications. Applications are never granted un-restricted access to modify a user's state. All state entries carry an explicit owner, and the validity predicate associated with that owner must authorise all changes to that state. Instead of authorising a la `transferFrom`, users add components to their validity predicates which allow for specific interactions with a specific application (which can then be perfomed non-interactively from the perspective of the user, if they have granted the application license to do so). These components can be altered or revoked at any time, and allow for "defense-in-depth" (e.g. prevent transfers of more than X within time bound t). 
 
-## Application state model
+### Application state model
 
 Anoma assumes clients are _stateful_ - they are treated as components of the distributed system. Messages will only be sent once, and can be marked as delivered, in which case they will not be kept around. Message history can be reconstructed by reprocessing historical transaction archives.
 
@@ -234,8 +221,6 @@ ibc
 ### Ordering
 
 ### Execution
-
-
 
 transparent, shielded, private
 VP architecture
