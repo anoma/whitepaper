@@ -217,11 +217,9 @@ The Anoma architecture is complex and requires many individually intricate subco
 
 ## Consensus
 
-- hpaxos
-- ibc 
-- what is the abstract interface
+The consensus component is an algorithm by which many nodes can be abstracted as one virtual node, which will be correct subject to certain assumptions about the correctness of the constituent nodes (generally > 2/3). Just as individual nodes operate a deterministic state machine and send and receive messages in a local total order, virtual nodes created by use of the consensus algorithm operate a deterministic (replicated) state machine and send/receive messages in a total order. The consensus algorithm is responsible for abstracting many nodes into this virtual node by gossiping, ordering, and executing transactions (incoming messages), then finalising the updated states (outgoing messages) in a verifiable manner.
 
-~ typhon
+At present, the consensus component in Anoma is instantiated by [Typhon](https://specs.anoma.net/master/architecture/consensus/typhon.html), which draws substantially from [Heterogeneous Paxos](https://arxiv.org/abs/2011.08253), [Narwhal](https://arxiv.org/abs/2105.11827), and [Tendermint](https://arxiv.org/abs/1807.04938v3).
 
 ### Ordering
 
