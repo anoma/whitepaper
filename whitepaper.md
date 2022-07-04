@@ -223,32 +223,49 @@ At present, the consensus component in Anoma is instantiated by [Typhon](https:/
 
 ### Ordering
 
-~ typhon
+The ordering component of consensus is responsible for ordering transactions prior to execution, where nodes participating in consensus must agree on the ordering and ensure that all transactions so ordered are available to them for execution.
 
 ### Execution
 
-transparent, shielded, private
-VP architecture
-cross-execution-environment communication
+The execution component of consensus is responsible for executing transactions on which an order has already been agreed, updating the state to reflect the results of transaction execution, and finalising the updated state so that external parties can inexpensively verify properties of it.
 
-information theoretic models
-VM, ZKP system, HE/MPC (?) system
 
-how to instantiate
-WASM, Plonkup, some HE
+## Execution environment
 
-abstract interface
+The execution environment of Anoma must orthogonalise possession and verification of data. 
 
-~ typhon EE
-~ taiga EE
-~ future unified EE
-~ vampIR
+- cross-domain communication
+- 
+
+### Transparent
+
+WASM/RISCV
+transparent Typhon EE architecture
+
+### Shielded
+
+ZKP system (Taiga)
+
+### Private
+
+HE system
 
 ## Gossip
 
 intent gossip, transaction gossip, 
 
 ~ what is this system, for now built on libp2p
+
+- local nodes have a virtual gossip layer
+- virtual gossip layer for fractal instances?
+
+## Application development
+
+- Juvix
+
+### Compilation stack
+
+### Validity predicate architecture
 
 ## Fractal instance components
 
@@ -276,9 +293,6 @@ can also be identity-based quotas
 
 ~ namada eip1559
 
-## Application development
-
-- Juvix
 
 # Future directions
 
