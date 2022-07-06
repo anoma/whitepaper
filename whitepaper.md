@@ -229,26 +229,50 @@ The ordering component of consensus is responsible for ordering transactions pri
 
 The execution component of consensus is responsible for executing transactions on which an order has already been agreed, updating the state to reflect the results of transaction execution, and finalising the updated state so that external parties can inexpensively verify properties of it.
 
+## Execution environments
 
-## Execution environment
+The execution environment of Anoma ....
 
-The execution environment of Anoma must orthogonalise possession and verification of data. 
 
-- cross-domain communication
-- 
+### Validity predicate system
 
-### Transparent
+handles sub-permissioning of state
 
-WASM/RISCV
-transparent Typhon EE architecture
+split the keyspace into prefixes
+first part of prefix indicates a specific vp
+sentinel key within that prefix to store the VP code
+vp enforces that vps associated with state which has changed are called
+they can also check that other vps have been called
+master vp enforces which vps see which data
 
-### Shielded
+### Taiga Unified EE
 
-ZKP system (Taiga)
+handles transparent, shielded, private data
+relies on ZKP system, TFHE system
+organisation of state:
+- transparent: mutable k/v tree
+- shielded: commitment tree, immutable notes, append-only, spend once/many
+- private: mutable key -> ciphertext, read/write/operate on ciphertext
+transit between data domains
+- transparent -> shielded: trivial
+- transparent -> private: encrypt
+- shielded -> private: encrypt + prove in ZK
+- shielded -> transparent: proof
+- private -> transparent: decrypt (async)
+- private -> shielded: encrypt-decrypt (async) (reencrypt?)
 
-### Private
+### Typhon EE
 
-HE system
+handles transparent data only
+
+- typhon transparent ee
+- state organised in key-value tree
+- transactions declare parents of all subtrees of keyspace within which they will read/write
+- typhon orders transactions concurrently on this basis
+- master validity predicate key, called on all transactions, enforces further logic
+
+- handles async message passing across fractal instances
+- handles atomic read/write in chimera chains
 
 ## Gossip
 
@@ -259,13 +283,35 @@ intent gossip, transaction gossip,
 - local nodes have a virtual gossip layer
 - virtual gossip layer for fractal instances?
 
-## Application development
+## Compilation stack
 
-- Juvix
+Juvix -> AnomaVM (runs on EE)
 
-### Compilation stack
+AnomaVM: abstract (info-theoretic) cryptography, low-level instructions
 
-### Validity predicate architecture
+Execution environment: concrete cryptography
+
+VampIR: abstract polynomials -> concrete proof systems
+
+### Juvix
+
+high-level functional programming language -> anomavm
+
+### AnomaVM
+
+- access to transparent, shielded, private state
+- abstract cryptography
+- VPs check relation between prior/post states
+	- compiled to some transparent instructions, some ZKP checks, HE instrs
+- WASM/RISC5/special instructions
+- compiles to:
+	- transparent vm for executing party
+	- transparent vm + proofs for parties with shielded state
+	- polynomial representations of circuits
+
+### VampIR
+
+abstract polynomial -> concrete polynomial
 
 ## Fractal instance components
 
