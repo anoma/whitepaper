@@ -254,6 +254,7 @@ Private data is represented as a mutable key -> ciphertext mapping, where keys c
 #### Cross-domain transit
 
 Conversion between the three data realms is handled as follows:
+
 - Transparent -> Shielded: Transparent data can be read or computed over in the course of execution, and then written into a shielded note.
 - Transparent -> Private: Transparent data can be read or computed over in the course of execution, and then encrypted to the threshold key.
 - Shielded -> Private: Shielded data can be computed over in zero-knowledge, and then encrypted to the threshold key, where correct encryption is proved in zero-knowledge and only the encrypted value is revealed to the operator.
@@ -264,25 +265,45 @@ Conversion between the three data realms is handled as follows:
 
 ### Typhon Transparent EE
 
-handles transparent data only
+The Typhon execution environment is the lowest-level execution environment, designed to impose only the minimal requirements and structure required by Typhon for transaction ordering and concurrent execution. 
 
-- typhon transparent ee
-- state organised in key-value tree
-- transactions declare parents of all subtrees of keyspace within which they will read/write
-- typhon orders transactions concurrently on this basis
-- master validity predicate key, called on all transactions, enforces further logic
+The Typhon execution environment has only transparent state, which is organised in a key-value tree. Transactions declare parents of all subtrees of keyspace within which they will read and write. Using this information, Typhon can identify transactions which touch only non-overlapping regions of state and thus order transactions for concurrent execution. This execution environment does not itself have any state semantics for private data or state/code partitioning. Further structure is specified by a root validity predicate, stored at a particular sentinel key, which is called as a part of all transactions.
 
-- handles async message passing across fractal instances
-- handles atomic read/write in chimera chains
+The Typhon EE is also responsible for handling asynchronous mesage passing across fractal instances and synchronous (atomic) message passing within chimera chains. The EE handles transport, ordering, and verification, while message semantics are left to higher execution abstraction layers. 
 
 ## Gossip
 
-intent gossip, transaction gossip, 
+The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient.
 
-~ what is this system, for now built on libp2p
+- sparse gossip network
+- local rules around message validity
+- messages are all encrypted/signed (so path can be verified)
+- recipient can check signature chain
+- new nodes can join, but trust graph is kept
 
-- local nodes have a virtual gossip layer
-- virtual gossip layer for fractal instances?
+### Node model
+
+Nodes in the gossip network are assumed to possess a private key, the corresponding public key to which is used as identication. Nodes must totally order and sign all messages which they send, which are unique. Signing two messages with the same nonce is an accountable fault. 
+
+- node virtualisation
+- threshold cryptosystem virtualises many nodes as one node
+	- threshold key for ingoing/outgoing
+	- internally, rebroadcast shares for reconstruction, but encrypted to node pks
+	- what about full nodes?
+		- check attestations
+
+
+
+### Path authentication
+
+- check the path of signature chains
+
+attestable: any node can prove to another node that it received a particular message from a third node.
+
+### Gossip incentives
+
+- pay fees to contributing gossipers
+- 
 
 ## Compilation stack
 
