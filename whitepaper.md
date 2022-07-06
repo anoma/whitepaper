@@ -231,37 +231,38 @@ The execution component of consensus is responsible for executing transactions o
 
 ## Execution environments
 
-The execution environment of Anoma ....
+The execution environment of Anoma is a runtime responsible for partitioning and permissioning state and code to allow for safe interoperation of mutually distrusting programs, abstracting transparent, shielded, and private state changes and providing appropriate primitives for cryptographic operations, and handling cross-fractal instance state verification as well as synchronous and asynchronous cross-fractal-instance messaging. These three responsibilities of abstraction are orthogonalised into three components: the validity predicate subsystem, the unified transparent/shielded/private execution environment (Taiga), and the transparent execution environment (Typhon EE). 
 
+### Validity predicate subsystem
 
-### Validity predicate system
+The validity predicate (VP) subsystem is responsible for partitioning and permissioning state and code in order to allow for safe interoperation of mutually distrusting programs. This is accomplished by splitting the keyspace of transparent, shielded, and private state into mutually exclusive prefix spaces, where the first part of a key corresponds to ownership by a specific validity predicate, stored at a sentinel key within that prefix. Whenever state within a particular prefix is altered, the validity predicates associated with that prefix are called, and they can choose to accept or reject the transaction. Validity predicates can also choose to require that other validity predicates also accept.
 
-handles sub-permissioning of state
-
-split the keyspace into prefixes
-first part of prefix indicates a specific vp
-sentinel key within that prefix to store the VP code
-vp enforces that vps associated with state which has changed are called
-they can also check that other vps have been called
-master vp enforces which vps see which data
+The validity predicate subsystem is itself implemented as a validity predicate and can in principle be instantiated recursively. The subsystem is also responsible for enforcing limitations on what data is accessible to VPs.
 
 ### Taiga Unified EE
 
-handles transparent, shielded, private data
-relies on ZKP system, TFHE system
-organisation of state:
-- transparent: mutable k/v tree
-- shielded: commitment tree, immutable notes, append-only, spend once/many
-- private: mutable key -> ciphertext, read/write/operate on ciphertext
-transit between data domains
-- transparent -> shielded: trivial
-- transparent -> private: encrypt
-- shielded -> private: encrypt + prove in ZK
-- shielded -> transparent: proof
-- private -> transparent: decrypt (async)
-- private -> shielded: encrypt-decrypt (async) (reencrypt?)
+The Taiga unified execution environment is responsible for handling transparent, shielded, and private data access and operations.
 
-### Typhon EE
+#### Data privacy domains
+
+Transparent data is represented as a mutable key-value tree, where keys can be read, written, and deleted, and prefixes can be iterated over. 
+
+Shielded data is represented as an immutable append-only note set, where each note can be either consumed once or many times. Each note includes a key, value, and owner key, to which an encryption of the note contents must be available.
+
+Private data is represented as a mutable key -> ciphertext mapping, where keys can be read, written, and deleted, and ciphertexts can be operated on using special homomorphic instructions.
+
+#### Cross-domain transit
+
+Conversion between the three data realms is handled as follows:
+- Transparent -> Shielded: Transparent data can be read or computed over in the course of execution, and then written into a shielded note.
+- Transparent -> Private: Transparent data can be read or computed over in the course of execution, and then encrypted to the threshold key.
+- Shielded -> Private: Shielded data can be computed over in zero-knowledge, and then encrypted to the threshold key, where correct encryption is proved in zero-knowledge and only the encrypted value is revealed to the operator.
+- Shielded -> Transparent: Properties of shielded data can be proved in zero-knowledge and then revealed to the operator along with the proof.
+- Private -> Transparent: Private ciphertexts can be decrypted using threshold decryption. This process is asynchronous.
+- Private -> Shielded: Private ciphertexts can be re-encrypted to another public key and thus become shielded data. This process is asynchronous. 
+
+
+### Typhon Transparent EE
 
 handles transparent data only
 
