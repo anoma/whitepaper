@@ -1,15 +1,15 @@
 ---
-title: 'Anoma: An intent-centric, privacy-preserving, Byzantine-fault-tolerant distributed database architecture'
-author: Heliax AG
+title: 'Anoma: an unified architecture for full-stack decentralized applications'
+author: Christopher Goes, Awa Sun Yin, Adrian Brink
 fontsize: 9pt
 date: \textit{Prerelease, \today}
 abstract: |
-	Anoma is a suite of protocols and mechanisms for self-contained and self-sovereign coordination in the presence of Byzantine actors. Traditional distributed settlement platforms are imperative, designed around transactions: state transitions which are ordered and executed. By contrast, Anoma is declarative, designed around intents and validity predicates: ephemeral and enduring preference functions over possible states which describe which states of the system an actor would prefer. Anoma’s fractal instance architecture partitions a single logical state across separate operational security zones, allowing users to interact with each other where they share trust assumptions and isolate themselves from faults elsewhere in the network graph. Vertical integration of the two phases of counterparty discovery and settlement allows the protocol to provide end-to-end privacy, safety, and liveness guarantees.
+	To be written in the end.
 urlcolor: cyan
 header-includes:
     - \usepackage{fancyhdr}
     - \usepackage{graphicx}
-    - \pagestyle{fancy}
+    - \pagestyle{plain}
     - \fancyhead[RE,LO]{}
     - \fancyhead[LE,Ro]{}
     - \fancyhead[CO,CE]{}
@@ -17,61 +17,90 @@ header-includes:
     - \fancyfoot[LE,RO]{\thepage}
 ---
 
+\pagebreak
+
 # Background and motivations
 
-## On information systems design
+The release of the Bitcoin protocol in 2008 marked the beginning of *scriptable settlement*, a category of distributed ledger architectures that is suitable for cryptocurrencies with discrete properties and monetary policies. Although it is not Turing-complete, Bitcoin Script[1] is able to support applications beyond currencies, such as Namecoin and Colored Coins. As discussed in the Ethereum Whitepaper[2], while applications built on scriptable settlement are functional, this architecture requires too many trade-offs that resulted in constrained properties and usability.
 
-Realization of discrete information systems which can be safely used as tools requires synthesis of bottom-up possibility-directed construction and top-down purpose-directed design. Bottom-up possibility-directed search of the possibility space determines which discrete systems can be constructed with certain properties, while top-down purpose-directed design provides constraints which a system must satisfy in order to provide safe, comprehensible, and accurate black-box abstractions to users which they can use to employ the system as a tool to do what they want. Failure to correctly search, constrain, and specify the discrete system will result in incoherent or inconsistent systems, while failure to correctly understand the models of the system which users will see and interact on the basis of will result in systems which are not useful, or worse, systems which make a false claim of black-box behaviour which they do not in fact adhere to, leading to inadvertent consequences when the systems are used without an accurate understanding of the ramifications of use. 
+The introduction of the Ethereum protocol in 2014 set the precedent for *programmable settlement*, a new category of architectures for constructing decentralised applications that leverage Turing-complete virtual machine execution, which adds substantially more expressivity to the settlement layer. Programmable settlement paved the way for improved versions of applications that scriptable settlement is not able to support, such as fungible tokens (ERC20) or Ethereum Name Service (ENS), which are today well-established versions of the Colored Coin and Namecoin ideas, respectively – in addition to many other desirable applications, such as non-fungible tokens (NFTs), Decentralised Automonous Organisations (DAOs), or the recently introduced Soulbound Tokens (SBTs)[3].
 
-These twin perspectives must be considered holistically, from the discrete system on one end and from the user's interfaces and understanding on the other. An elegant and safe protocol basis is insufficient if weak application-layer constructions ruin the intended properties of the protocol architecture by routing around them at the application layer, purposefully obfuscating choices intended to be granted to the user, or misleading users with interfaces conveying relations of data, control, and influence to which the underlying system does not adhere. This might lead one to favour minimalist vertically integrated architectures which do very little on purpose. At the same time, if the architecture is too specific, and different use-cases which require only differences at the application layer but could utilise the same lower-level primitives instead use incompatible vertically-integrated protocol stacks, systems will be unnecessarily incompatible, and effort verifying multiple syntactically-varying but structurally-isomorphic lower-level protocol components will be wasted. Taking in mind both the constructive possibilities and the purpose-directed design, there is a specific tree of abstractions proper to the generalisation of a set of use-cases, and it is the task of systems designers to articulate and specify it.
+Proposed and deployed blockchain protocols since Ethereum's release have brought significant improvements to specific architectural components, for instance: consensus mechanisms (Tendermint[4], Avalanche[5]), Sybil-resistance mechanisms (proof-of-stake, proof-of-storage, etc.), scaling solutions (sharding, rollups, etc.), and cryptographic schemes (zero-knowledge proofs) – but these improvements to constituent primitives do not change the basic architecture of programmable settlement.
 
-## Situating Anoma
+While programmable settlement is sufficient for certain applications, many contemporary applications have further requirements. Settlement suffices when the involved parties have already decided what and with whom to settle, but contemporary applications often also require infrastructure for helping potential counterparties discover each other and decide with whom and on what to settle. As a workaround, existing applications have usually adopted an architecture that relies on one or many permissioned or centralized components (such as provers, solvers, or sequencers), usually implemented as Web2 services, in their stack.
 
-Anoma is an attempt to synthesize between the constructive search of possible Byzantine-fault-tolerant privacy-preserving distributed database architectures and an understanding of how users will use these systems for various kinds of coordination that aims for a suitable level of generality and configuration of abstractions in order to provide end-to-end security, correctness, and privacy guarantees for the real practices of use. A modicum of consideration for the context of use entails the two key design principles of Anoma: intent-centric design and homogeneous architecture / heterogeneous security. These principles are not necessitated by the constructive possibilities of systems but are rather chosen to align the properties which the user-facing black box abstractions of Anoma can provide with the properties required for safe usage in the expected topology of real-world deployment. Both rest on what is in turn the essential distinction between constructive search and purpose-directed design: the subjectivity of semantics. 
+Examples include decentralized exchanges for fungible assets (0x, CoWSwap, Uniswap), for non-fungible assets (Wyvern, LooksRare, OpenSea), novel voting/funding mechanisms (quadratic voting/funding, Gitcoin), and rollups (Optimism, Arbitrum, Starknet, zkSync) – their architectures involve at least one centralised component that often results in a loss of permissionlessness, fault-tolerance, censorship-resistance, or privacy.
 
-Data, whether stored in replicated distributed database entires, Excel spreadsheet cells, or writing on a piece of paper, has meaning which cannot be derived from its form. While the form may have a certain structure, if the data refers to entities in the world outside the database, these relations of referring cannot be found in the data itself, for any particular relations are possible. Yet, if the database is a tool to be used in order to aid in manipulation of entities in the world outside the database, it is not merely the particular form of or syntax of the data but also the knowledge of these relations that one must possess in order to use the database as such an aid. 
+One emerging approach for applications seeking to avoid centralization points in their architecture is to deploy an application-specific sovereign chain to replace a specific component in the stack. Even though this approach can solve the immediate centralization problem, it comes with substantial trade-offs, such as the loss of network effects (application composability and software re-use) or the addition of disproportionate complexity to developers and users, who need to reason about multi-layered security, privacy, and latency domains.
 
-### Intent-centricity
+In this paper we present Anoma. Anoma is a unified architecture for full-stack decentralized applications – characterised by its intent-centricity, decentralised counterparty discovery and computational outsourcing of NP search problems to solvers which compute valid state transitions. With this architecture, contemporary applications can be built without compromising permissionlessness, fault-tolerance, censorship-resistance, or privacy.
 
-The first design principle of Anoma is _intent-centricity_, and it follows from considering the following question: why would anyone use a distributed database at all? To users who take the database as a tool, the semantics of data stored therein constitute their correspondence to entities outside the database, and the utility of the database as a tool is merely any ways in which it can aid in the manipulation of these entities. The key distinction between a _distributed_ database and a non-distributed one is fault tolerance: the database can continue to operate and preserve its syntactical rules in the presence of certain limited faults. This is only useful in a context of use where there are multiple users who want to coordinate (a single user could have used a private local database), and where these users want to preserve their ability to coordinate in the presence of Byzantine actors. Grounds for coordination are preferences over states of the world (otherwise there would be no reason to coordinate) and the inability of any actor acting alone to enact them (otherwise action could be taken directly). Anoma starts from this basis, conceptualising these preferences over states of the world in discrete form as _intents_, and crafting an architecture to facilitate counterparty discovery (finding other actors with whom one could coordinate) and settlement (enacting state changes preferred and reachable by a set of actors acting jointly). 
+Anoma's architecture also exposes novel primitives, such as composable privacy, which enables applications to handle transparent, shielded, and private state and operations; and multi-chain atomic settlement, which allows users and applications with different security preferences to obtain atomicity. These and other novel primitives pave the way for the development of applications that cannot be built with existing architectures, several of which we enumerate in section 5.
 
-An *intent* is an expression of what a user wants to achieve whenever they interact with a protocol, for instance "transfer X from A to B" or "trade X for Y". So far all distributed ledger protocols (cryptocurrencies, smart contract platforms or application-specific Layer 1s) were designed with *transactions* as their most fundamental unit. Independent to what the actual user intent entailed, clients (e.g. wallets or other interfaces) are required to transform the intent into a transaction so the protocols are able to process it. In reality, most user intents are more complex than what can be represented in a transaction, for example "transfer X from A to B *privately*", "transfer X from A to B *where B receives Y*" or "trade X for Y *at the best market rate possible*".
+# Architectural design philosophy
 
-(comment: describe a bit more what intents are, counterparty discovery and settlement)
+Anoma's architecture is driven by two design principles: first, intent-centricity; second, a homogeneous protocol architecture with a heterogeneous security model. Beyond these two design principles, all other architectural choices are a matter of modularisation and runtime configuration parameters.
 
-Overtime, many protocols and clients have emerged so that more complex user intents can be interpreted and encoded into transactions to be settled on-chain. In the domain of fungible token trading, examples include the work from Flashbots or the Coincidence of Wants (CoW) Protocol, which via custom components at the peer-to-peer layer (mev-relay, CoWs, Batch Auctions), client (mev-geth), RPC layer (Flashbots protect) - integrated to grant the properties of "best on-chain price" and a "notion of fairness" via MEV mitigation mechanisms. In the domain of non-fungible token commerce, examples include the Wyvern DEX Protocol and more recently the Seaport Protocol, which supports orders that include more traits, often needed when a user intent involves NFTs. While we expect more protocols and components like the above to proliferate and diverisfy with specialisation in interpreting application-specific intents within the architectural boundaries of smart contract plaforms, there hasn't been any vertically-integrated protocol yet able to interpret and process intents natively and generically.
+## Intent-centricity
 
-(comment: add 0x, more people will know it than Seaport)
+An *intent* is an expression of what a user wants to achieve whenever they interact with a protocol, for instance "transfer X from A to B" or "trade X for Y". Practically, an intent is an off-chain signed message that encodes which state transitions a user wants to achieve. Unlike transactions, intents are partial, so one can think of intents as parts of transactions that require other direct or indirect parts as complements in order to form a final balanced transaction which satisfies all users' constraints.
 
-(comment: cut first part of last sentence, note that all of these protocols do counterparty discovery and use the blockchain for settlement)
+Existing protocols are designed with *transactions* as their most fundamental unit. Anoma takes a radically different approach: the architecture of Anoma is centered around programmatic *intents*.
 
-In Anoma's architecture, intents are the most fundamental unit and it is designed to handle intents generically. An intent encodes the user's preferred state transition, where the preferences can be as simple as a plain transfer or as complex and expressive as one that requires arbitrary computation. This intent-centric philosophy results in a declarative architecture that is designed to settle intents wherever possible – as they were defined by the user *and nothing else*, thereby minimising informational externalities, which extend beyond the loss of anonymity or the ability for certain parties to benefit disproportionally from users' actions without adding comparable value in the process. By adopting a declarative paradigm, Anoma can grant users more control and realise their intents with not only stronger privacy, security, and performance guarantees, but also more expressivity and flexibility in articulating their intents to an extent that they can define arbitrarily both the what and the how the intents are processed.
+An intent-centric architecture is necessary to enable counterparty discovery, which is crucial for compelling applications, since they require multiparty coordination and to enable full-stack decentralised applications. Anoma vertically integrates counterparty discovery, solving and settlement and is able to interpret and process intents natively and generically. Contemporary applications, as described earlier, require both counterparty discovery and settlement. Intents are the point at which users interact with such applications, and an intent-centric design captures the requirements of applications which need these two processes to work in tandem and satisfy censorship-resistance, privacy, and fault-tolerance properties.
 
-(comment: contrast transactions (imperative) with intents (declarative))
+Intent-centric design also constitutes a *declarative paradigm* for building applications, since Anoma is designed to settle intents *as defined* by the users – an intent is either settled as defined, or not settled at all. This declarative model gives users a significantly higher degree of control, *without* requiring them to understand the underlying protocol primitives and execution flows, which is crucial in order for decentralised applications to reach mass adoption. This paradigm presents a radically different approach as compared to existing *transaction-centric* architectures that default to an *imperative model* for applications. In the latter, users are required to understand the full execution trace to benefit from security and privacy guarantees, because instead of authorizing a specific state change, they authorise specific execution paths. In practice, this is so difficult that users commonly interact with applications without understanding the risks.
 
-Compared to architectures centered around smart contracts that could encode arbitrary state transition functions, Anoma's declarative programming paradigm provides application developers a better scoped problem space, as they will only need to reason through the compatibility between user intents and validity predicates, and set the precedence for building safer by construction applications – or applications that do not work as the developer ended up writing logic that violated corresponding validity predicates. Anoma's architecture opens up a new way of designing decentralized applications that benefit from the expressivity and composability of intents, the expressivity and guarantees of validity predicates, as well as a more efficient settlement mechanism derived from the design of the state mechaine and ledger that makes the separation between computation and verification more explicit, where computation can be handled off-chain (and can be thereby parallelised), while only verification is handled on-chain (validity predicates are checked before state transitions are accepted). Users benefit from a better user experience when interacting with applications built following this declarative programming paradigm, as they interact directly with their own intents and define their own validity predicates - making it easier to understand and reason through what they are doing without requiring them to understand the underlying stack.
+For application developers, Anoma's intent-centric architecture enables them to build *safer by construction applications* by leveraging the combination of intents and *validity predicates*. Validity predicates are an architecture for smart contracts which separate out cleanly the task of computing state transitions and the task of verifying correctness of state transitions, as compared to message-passing VM execution models (pervasive in current programmable settlement architectures) which interleaves computation and verification. Validity predicates allow application developers to reason about the invariants which they would like their application to satisfy without worrying about how other applications interact with it, since the validity predicate of their application expresses these invariants directly.
 
-(comment: describe application interface a bit more, contrast directly instead of using adjectives like "better")
+## Homogeneous architecture / heterogeneous security
 
-As the volume and diversity of user intents continues to grow, Anoma's architecture is designed to process any intents generically, including the yet-to-be disovered ones. Combined with its ability to handle already-known intents with stronger security performance guarantees, and better developer and end-user experience, we believe that Anoma can open up a world for not only upgrading existing decentralized applications with stronger guarantees and different trade-offs, but also enable new kinds of decentralized applications and novel economics that existing architectures cannot.
+The Anoma protocol, just like the TCP/IP protocol stack, follows the principle of homogeneous architecture and heterogeneous security. In TCP/IP, the various layers of the internet protocol are standardised, but the choice of whom to connect to and what data to entrust them with is left to the user, and different users can make different choices while using the same protocol stack. In Anoma, the various layers of counterparty discovery, solving, and settlement are similarily standardised, but the choice of what security domains to trust and what data to send to whom are left to the user, and different users can make different choices while using the same protocol stack.
 
-(comment: cut this)
+In this framework, protocols can be analysed along two dimensions: architecture and security.
 
-### Homogeneous architecture / heterogeneous security
+* **Architecture**: the abstractions and relations constituting the structure of a system. An architecture is syntactical, possessed of properties and syntaxes but with no particular semantics in relation to the exterior world. Convergence on a singular architecture saves time and verification costs without constraining users to particular choices.
+* **Security**: the choice of whom and how to trust in the operation of a distributed system. Security is a decision inseparable from the particular semantics of a specific context of use. While security can be economically abstracted to a certain degree, by limiting the information available to and consqeuent choicemaking capabilities of system operators, operators will always have choices of how and from whom to accept messages, when to elect to include them in blocks or other aggregations over which they vote, and when to cease voting or otherwise alter normal operational procedures in response to exceptional circumstances. Who to trust with these responsibilities depends on what the state in the database _represents_ in the real world, and alignment with the interests of users of the database requires mutual interests beyond the purely economic ones.
 
-The second design principle is homogeneous architecture / heterogeneous security. Architecture -- the abstractions and relations constituting the structure of a system -- is syntactical, possessed of properties and syntaxes but no particular semantics in relation to the exterior world. Convergence on a singular architecture saves time and verification costs without constraining users to particular choices. Security -- the choice of who and how to trust in the operation of a distributed system -- is a decision inseparable from the particular semantics of a particular context of use. Security can be economically abstracted to a certain degree, by limiting the information available to and consqeuent choicemaking capabilities of system operators, but operators will always have choices of how and from whom to accept messages, when to elect to include them in blocks or other aggregations over which they vote, and when to cease voting or otherwise alter normal operational procedures in response to exceptional circumstances. Who to trust with these responsibilities depends on what the state in the database _represents_ in the real world, and alignment with the interests of users of the database requires mutual interests beyond the purely economic ones. The TCP/IP protocol stack follows this principle, in that the various layers of the internet protocol are standardised, but the choice of who to connect to and what data to entrust them with is left to the user, and different users can make different choices. In practice, however, the internet often fails to provide this interoperability and user-directed security in practice due to control of data and proprietary platforms at the application layer (e.g. Android and iOS app stores).
+### Analysis of platforms
 
-Consider blockchain platforms, from the perspective of applications running on top of them, along two dimensions: protocol architecture and security model, and whether they are _homogeneous_ or _heterogeneous_ for different applications running on the platform. Protocol architecture refers to the state layout, virtual machine, language support, sharding mechanisms, cross-contract messaging model, etc. - architecture determines what is required to write an application for a platform. Platforms with a _homogeneous_ architecture require that all applications are written in a certain format (e.g. EVM bytecode or WASM), while platforms with a _heterogeneous_ architecture allow applications to be written in different formats, perhaps with some agreement at the edges (cross-chain communication protocols). Security model refers both to security **in theory** - fault tolerance properties of the consensus, fork detection & handling, etc. - and security **in practice** - which miners or validators actually operate deployed instances of these architectures. Platforms with a _homogeneous_ security model have the same security for all applications (more or less), while platforms with a _heterogeneous_ security model have different security characteristics (perhaps both in theory and in practice) for different applications. This is, of course, a broad characterisation and obscures finer detail, but these design dimensions do exist. Let's situate several platforms on these two axes: Ethereum - homogeneous / homogeneous, Polkadot - heterogeneous / homogeneous, Near - homogeneous / homogeneous, Cosmos - heterogeneous / heterogeneous, multichain - heterogeneous / heterogeneous.
+Consider distributed ledger platforms, from the perspective of applications running on top of them, along these two dimensions: protocol architecture and security model, and whether they are _homogeneous_ or _heterogeneous_ for different applications running on the same platform.
 
-As this diagram suggests, these dimensions, so far, are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It's easier to design a system where they are correlated - if everything is homogeneous, protocols can be fit together neatly, cross-contract communication is easy, etc.; if everything is heterogeneous, protocols just agree on the edges of interaction (IBC) and handling the complexity of security is up to the users.
+Protocol architecture refers to the state layout, virtual machine, language support, sharding mechanisms, cross-contract messaging model, etc. An architecture determines what is required to write an application for a platform, and applications are specific to a particular architecture.
+* Platforms with a *homogeneous* architecture require that all applications are written in a certain format (e.g. EVM bytecode or WASM).
+* Platforms with a *heterogeneous* architecture allow applications to be written in different formats, perhaps with some agreement at the edges, such as cross-chain communication protocols.
 
-Anoma's fractal instance architecture is an attempt to decouple these dimensions and build a platform which is architecturally _homogeneous_ (though see below) but with a _heterogeneous_ security model. This is more complicated, but it separates out the question of what is the best _protocol architecture_, where there may be a "benevolent monopoly" (a la Git or TCP/IP), from the question of what is the best _security model_, where there is almost certainly not. Applications written for fractal instances can standardise on the architecture Anoma offers, which is sufficiently well-defined to allow for complex interoperability, automatic scaling, etc., without agreeing on any single security model (and, in some cases, this flexibility of choice can be extended all the way to users of the applications, who can choose independently). Interfaces for Anoma instances can support the same applications deployed with different security models, and communicate that latter difference to users in a way which allows them to choose their trust assumptions while retaining the network effects of using the same protocol.
+Security model refers both to security *in theory*, such as fault tolerance properties of the consensus, fork detection and handling; and security *in practice*, i.e. which miners or validators operate the deployed instances of these architectures.
 
-It's worth noting that Anoma's architecture isn't "homogeneous" like a straitjacket - all of the protocols are layered so that fractal instances can pick and choose which parts they participate in - we should do this, but we should also come up with a unified architecture that handles most concerns reasonably well and allows developers and users of Anoma to realise the benefits of standardisation.
+* Platforms with a *homogeneous* security model have the same security for all applications.
+* Platforms with a *heterogeneous* security model have different security characteristics for different applications.
 
-Beyond these two design principles of intent-centricity and homogeneous architecture / heterogeneous security, Anoma tries to make no decisions -- all other choices are a matter of modularisation and runtime configuration parameters.
+For illustration, the table below situates several platforms on these two axes:
 
-# Architectural design rationale
+| Platform     | Protocol Architecture|Security Model|
+|--------------|----------------------|--------------|
+| Bitcoin      | Homogeneous          | Homogeneous  |
+| Ethereum     | Homogeneous          | Homogeneous  |
+| Ethereum 2.0 | Homogeneous          | Homogeneous  |
+| Polkadot     | Heterogeneous        | Homogeneous  |
+| Near         | Homogeneous          | Homogeneous  |
+| Cosmos       | Heterogeneous        | Heterogeneous|
+| Multichain   | Heterogeneous        | Heterogeneous|
+| Anoma        | Homogeneous          | Heterogeneous|
+
+As the table suggests, these dimensions are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It is easier to design a system where they are correlated. If everything is homogeneous, protocols can be fit together neatly, and functionalities including cross-contract communication are easy; whereas if everything is heterogeneous, protocols just agree on the edges of interaction, for instance via the Inter-Blockchain Communication protocol (IBC)[6], and handling the complexity of security is up to the users and application developers.
+
+### Why decouple these dimensions?
+
+Anoma's fractal instance architecture is an attempt to decouple these dimensions and build a platform which is architecturally *homogeneous* and with a _heterogeneous_ security model. This is more complicated, but it separates out the question of what the best *protocol architecture* is, where there may be a "benevolent monopoly" (à la Git or TCP/IP), from the question of what is the best *security model*, where there is almost certainly not.
+
+Applications written for fractal instances can standardise on the architecture Anoma offers, which is sufficiently well-defined to allow for complex interoperability, automatic scaling, etc., without agreeing on any single security model. Furthermore, in some cases, this flexibility of choice can be extended all the way to users of the applications, who can choose independently. 
+
+User interfaces for Anoma instances can support the same applications deployed with different security models, and communicate that latter difference to users in a way which allows them to choose their trust assumptions while retaining the network effects of using the same protocol.
+
+Noteworthily, Anoma's architecture is not "homogeneous" like a straitjacket, as it supports multiple deployment models. The components in the protocol are layered so that fractal instances can pick and choose which parts they participate in, even if it involves leveraging Anoma for specific functionalities (such as decentralised counterparty discovery and solving), whilst anchoring the final settlement on another platform, such as Ethereum. Nonetheless, a unified and vertically integrated architecture allows developers and users to benefit from standardisation.
+
+<!-- # 3. Architectural design rationale
 
 Anoma's architecture, from the basis of intent-centricity and heterogeneous security, aims to make as few assumptions as possible, and no decisions. 
 
@@ -83,72 +112,82 @@ Spatiotemporal locality: No absolute clock, per Einstein, clocks are relative. S
 
 Limited computational speed: NP != P, searching for satisfying computations must be specialised to the particular form and is to be exposed in the programming interface. Quality-of-service guarantees require bounded compute.
 
-Limited computational speed motivates the separation of the role of solver from the role of settlement. Spatiotemporal locality and heterogeneous trust motivate separation of security and concurrency domains.
-
+Limited computational speed motivates the separation of the role of solver from the role of settlement. Spatiotemporal locality and heterogeneous trust motivate separation of security and concurrency domains. --> To be included in a future version
+ 
 # Architectural topology
 
-(diagram of all architectural components)
+Anoma's architectural topology consists of a set of logical abstractions delineated by their role in dataflow, independent of particluar forms of representation, deployment models, choices of cryptographic implementation, etc. Particular instantiations carry different concrete performance and security implications and should be chosen according to requirements of the specific deployment in question.
+
+We offer a sketch of our choices for different deployments in section 5.
+
+![](https://hackmd.io/_uploads/BJz9-qZ2q.png)
 
 ## Nodes and network layer
 
-Anoma's architectural topology is logical, in the sense that it consists of a set of logical abstractions delineated by their role in dataflow, indepedent of particular forms of representation, choices of cryptography implementation, details of hardware, etc. While this architecture holds based on the assumptions described above, particular choices of representation will carry concrete performance and security implications and should be chosen according to more specific requirements of particular scenarios. We offer a sketch of our choices of representation in section 5.
+The architectural topology of Anoma operates on a substrate of networked Turing machines, which we refer to as _nodes_. Nodes may take on different operational _roles_, such as gossiping intents, searching for solutions, and voting in consensus. Although different roles will have different hardware requirements, nodes are a single class and runtime configuration settings determine which roles a node performs.
 
-The architectural topology of Anoma operates on a substrate of networked Turing machines, which we refer to as _nodes_. Nodes may take on different operational _roles_, such as gossiping intents, searching for solutions, and voting in consensus. Although different roles will have different hardware requirements, nodes are a single class. Runtime configuration settings determine which roles a node will perform.
-
-All nodes are assumed to compute deterministically, with the ability to locally generate randomness (which may be used, for example, as secret values in cryptography). Nodes are assumed to have read and write access to local storage. The set of nodes is unbounded and dynamic (nodes may enter and exit at any time). Nodes are assumed to be partially connected on an open network, where which other nodes a node can connect to will determine what roles that node can play. The network layer is assumed to be unreliable (messages may be arbitrarily dropped, duplicated, or reordered) and untrustworthy (unencrypted data is not secret). Specific roles may have slightly more stringent network assumptions (such as partial synchrony). 
+All nodes compute deterministically, with the ability to generate local randomness (which may be used, for example, as secret values in cryptography) and have read and write access to local storage. The set of nodes is unbounded and dynamic with nodes entering and exiting at any times. Nodes are partially connected on an open network, where different roles require different connections. The network layer is assumed to be unreliable (messages may be arbitrarily dropped, duplicated, or reordered) and untrustworthy (unencrypted data is not secret). Specific roles may have more stringent network assumptions such as partial synchrony.
 
 ## Intents
 
-An _intent_ is a unit of ephemeral data describing a space of possible partial state transitions. Semantically, intents contain information about preferences. For example, an intent may express that Alice wishes to swap X for Y, or any X with property T for any Y with property U, or Z for some asset A, but only if A was previously owned by Judy, and only if Judy provides an additional signature. Counterparties are not required: an intent may express a complete state transition (complete state transitions are a subset of partial state transitions). For example, an intent may express that Alice wishes to send asset A to Judy, a state change which requires no one other than Alice to agree in order to enact. Such intents may still need solvers, if certain information is unknown by Alice. For example, Alice could express that she wishes to set a bounty value in proportion to the current temperature in Berlin, a value which she does not know but knows an oracle key for, and which a solver with oracle data access could provide. Intents which need neither counterparties nor solvers can be immediately turned into transactions. The particular syntax of representation of assets, properties, etc. is fixed at the application level. At the architectural level, intents are opaque bytestrings.
+An _intent_ is a signed message that describes a partial state transitions. Semantically, intents contain information about state preferences, such as that Alice wishes to swap X for Y, or any X with property T for any Y with property U, or Z for some asset A, but only if A was previously owned by Judy, and only if Judy provides an additional signature. More generally intents are arbitrary code that is evaluated at runtime by the settlement layer.
+
+Intents are partial and hence specific counterparties are not required, albeit they can also be complete (complete state transitions are a subset of partial state transitions). For example, an intent may express that Alice wishes to send asset A to Judy, a state change which requires no one except Alice to agree in order to be enacted. Such intents may still require solvers, if certain information is unknown by Alice. For example, Alice could express that she wishes to set a bounty value in proportion to the current temperature in Berlin, a value which she does not know but knows an oracle key for, and which a solver with oracle data access could provide. Intents which need neither counterparties nor solvers can be immediately converted into transactions. The particular syntax of representation of assets, properties, etc. is fixed at the application level. At the architectural level, intents are opaque bytestrings.
 
 ## Intent gossip layer
 
-The _intent gossip layer_ is a virtual sparse overlay network for dissemination of intents, counterparty discovery, and matchmaking (when a solver combines intents to craft a valid transaction). The intent gossip layer consists of sparsely networked _intent gossip nodes_, where _intent gossip_ is a role any node can play. When a node authors an intent which requires matchmaking, that node broadcasts the intent over the intent gossip layer. This broadcast can be directed, where the node picks specific other nodes based on privacy, match expectation, and match cost considerations, or undirected, where the node broadcasts the intent as widely as possible. Nodes may offer a settlement-conditional fee along with an intent, to be paid only if the intent eventually makes its way into a transaction which is confirmed by consensus, they may pay a fee for confirmation and ordering of the (likely encrypted) intent in a data availability domain where solvers compete to find the best match for each group of intents, or they may rely on the counterparty to settle and offer no additional fee. 
+The _intent gossip layer_ is a virtual sparse overlay network for dissemination of intents, counterparty discovery, and solving (when a solver combines multiple intents to craft a valid transaction). The intent gossip layer consists of sparsely networked _intent gossip nodes_, where _intent gossip_ is a role any node can play. When a client authors an intent which requires solving, it broadcast the signed intent to an _intent gossip node_, which further relays the intent over the intent gossip layer. This broadcast can be directed, where the node picks specific other nodes based on privacy, solving specialization or other criteria, or undirected, where the node broadcasts the intent as widely as possible. Intents can contain a settlement-conditional fee, to be paid only if the intent is satisfied, settled and confirmed by consensus. Furthermore this fee can be split between all nodes involved in the gossip and the ultimate solver. Intents can pay a fee for confirmation and ordering of the (likely encrypted) intent in a data availability domain where solvers compete to find the best match for each batch of intents.
 
 ## Solver
 
-A _solver_ is a node which runs a _solver algorithm_ for matching intents of a particular form (or set of forms). Any node can play the role of solver. Solvers connect to the intent gossip network, accept intents of forms which they understand and which they expect to be worth the storage and bandwidth costs (perhaps due to a fee or an expected spread from a match), and run the solver algorithm to search the space of possible transactions based on the current state and intent pool, find subsets of intents which can be matched, and generate transactions which match them. 
+A _solver_ is a node which elects to receive all or a subset of intents and computes solutions over the set of intents. It achieves this by running one or many _solver algorithms_. These algorithms are local and different solvers compete with each other to satisfy the presented constrain system. In practice most solvers will likely specialize in certain applications, such as fungible token trading or computing rollup states. Solvers are permissionless and anyone can act as the role of solver. Solvers can decide which intents to accept and should generally only consider those that are worth the storage and bandwidth costs (perhaps due to a fee or an expected spread from a trade). The solver algorithm searches the space of possible solutions based on the current state of the settlement layer and the known intent pool with the aim of finding subsets of compinable intents to generate transactions which are acceped by the settlement layer. 
 
 ## Transaction
 
-A complete state transaction, referred to as a _transaction_, is a function from the current state to a new state. 
+A _transaction_ is complete state transition which acts as a function from the current state to a new state. Transactions follow the declarative programming model and describe the desired end state rather than the imperative steps to compute it. As a result, submitters of transactions, such as solvers or ordinary users, do not have to consider the execution steps when reasoning about the behavior of their transaction. In existing systems, such as Ethereum, Near or Solana, submitters have to be aware and trust all intermediary execution steps, such as proxy contracts, since they can modify the imperative computation and change the final state result. With Anoma's declarative approach submitters have to only accurately specify the desired end state without worrying about the compute done in the middle.
+
+Submitters encrypt transactions against the Ferveo DKG public key. Nodes receive and gossip only encrypted transactions. After consensus has ordered the encrypted byte strings a 2/3 majority of consensus nodes decrypts and reveals the original transactions. Ferveo is non-interactive, which means that there are no extra economic security guarantees required in order to enforce the revalation of the original transactions. 
 
 ## Mempool
 
-The _mempool_ is a virtual dense partitioned overlay network for transactions. The mempool is partitioned on the basis of security and concurrency domains (fractal instances), where nodes participating in the mempool gossip only transactions for fractal instances which they are interested in. By contrast to the intent gossip network, the mempool is dense in the sense that validators of a particular fractal instance must receive all of the transactions destinated for that instance. 
+The _mempool_ is a virtual dense partitioned overlay network for transactions. The mempool is partitioned on the basis of security and concurrency domains (fractal instances), where nodes participating in the mempool gossip only transactions for fractal instances which they are interested in. By contrast to the intent gossip network, the mempool is dense in the sense that validators of a particular fractal instance must receive all of the transactions destinated for that instance. The mempool is opague since it only receives, stores and gossips encrypted byte strings rather than transparent transactinos.
 
-##  Data availability domain
+## Data availability domain
 
-A _data availability domain_ is a logical clock and data availability layer whereby intents in a particular batch can be made available to solvers who must compete to offer the best solution by a measurable criterion. 
+A _data availability domain_ is a logical clock and data availability layer. These data availability domains are programmable by all applications. It allows applications to specify batches of intents that are decrypted all at once at the same time after a particular time interval has passed. Intents can be submitted in encrypted form (using Ferveo) to the nodes in a particular batch. After the batch is complete the validators decrypt all intents in a batch and add the decrypted content to the state. These intents are not directly executed by the state machine, but rather are available to sovlers who compete to offer the best solution by a measurable criterion defined by the application. 
 
 ## Security domain
 
-A _security domain_ is a set of cryptographically identified nodes executing a particular state transition function in consensus, for which finality and correctness hold under a particular assumption of a certain fraction of nodes behaving according to protocol (generally n >= 3f + 1, but this can vary). Correctness of state transitions can be verified separately, but finality cannot, as it is impossible to prove the nonexistence of data (another finalised block at the same height, for example).
+A _security domain_ is a set of cryptographically identified nodes executing a particular state transition function in consensus, for which finality and correctness hold under a particular assumption of a certain fraction of nodes behaving according to protocol (generally n >= 3f + 1). Different Sybil-resistance mechanisms can be used to select the set of nodes, such as PoS, PoW, PoI or PoA.
 
 ## Concurrency domain
 
 A _concurrency domain_ is a total ordering over a set of transactions within the domain which may be partially ordered or unordered with respect to other concurrency domains. Concurency domains always operate within particular security domains (since the total order is enforced by the consensus of the security domain). 
 
-## Fractal instance
-
-A _fractal instance_ is an instance of the Anoma consensus and execution protocols operated by a set of networked validators. In general, fractal instances are security domains, in that they are operated by a particular set of validators, of which the user must trust a quorum; concurrency domains, in that they maintain a full order of only the transactions which they execute; and data availability domains, in that external observers can query the fractal instance to retrieve parts of its state. Fractal instances are sovereign, in that they do not depend on any other part of the fractal instance graph for continued correct execution, although their validator sets may overlap, a property which can be exploited in certain cases to provide cross-instance atomic transactions. Fractal instances, in order to be compatible with all features of the network, must implement the Anoma consensus and settlement protocols according to spec, but they can vary in Sybil resistance mechanisms, execution pricing, and local governance of protocol versioning, economic distribution regime, and irregular state transitions.
-
-
 ## Consensus
  
-_Consensus_ is an algorithm for agreement between many parties (some possibly Byzantine) that forms a security domain and quantizes time. 
+_Consensus_ is an algorithm for agreement between many parties (some possibly Byzantine) that forms a security domain and quantizes time. The consensus algorithm is responsible for grouping transactions into blocks which are agreed upon by consensus participants.
 
 ## Execution
 
-An _execution environment_ is an algorithm for taking the state and a set of transactions and applying the transactions to the state. Anoma provides a _unified execution environment_ which can handle transparent, shielded, and private state transitions. _Transparent_ data is public to execution nodes and observers. _Shielded_ data is private to execution nodes and observers, but known to a single user, who can prove properties of it using zero-knowledge proofs. _Private_ data is known by no one independently and is computed and stored in encrypted form using various forms of homomorphic encryption. Anoma provides a general framework for reasoning about the privacy of data independently of the kind of verification performed, but performance characteristics of the underlying cryptographic schemes will determine the practical feasibility and execution costs of various applications. It is important to note that the delineation here is purely on the basis of state privacy. Technologies such as zero-knowledge rollups, for example, can be used with transparent, shielded, and private state transitions (at least in principle).
+An _execution environment_ is an algorithm for taking the current state and a set of transactions and applying those transactions to the state resulting in a new state. Anoma provides a _unified execution environment_ which can handle transparent, shielded, and private state transitions. _Transparent_ data is public to execution nodes and observers. _Shielded_ data is private to execution nodes and observers, but known to a single user, who can prove properties of it using zero-knowledge proofs. _Private_ data is known by no one independently and is computed and stored in encrypted form using various forms of homomorphic encryption. Anoma provides a general framework for reasoning about the privacy of data independently of the kind of verification performed, but performance characteristics of the underlying cryptographic schemes will determine the practical feasibility and execution costs of various applications. It is important to note that the delineation here is purely on the basis of state privacy. Technologies such as zero-knowledge or optimistic rollups can be used with transparent, shielded, and private state transitions.
 
 ## Application
 
-An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. An application consists of _state_, which may be partitioned across multiple fractal instances and shards within those instances, _application validity predicates_, which govern changes to the application's state, _user validity predicate components_, which may be included by the user in order to authorize certain interactions with the application, _intent formats_, which allow intents to be created by clients, reasoned about by solvers, and processed by validity predicates, _solver algorithms_, which allow solvers to craft transactions satisfying intents from an application (and possibly other applications), and _interfaces_, which provide users visual, spatial, and temporal abstractions for interacting with the application.
+An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. An application consists of _state_, which may be partioned across multiple fractal instances and shards within those instances; _application validity predicates_, which govern changes to the application's state; _user validity predicate components_, which can be included by the user in order to authorize certain interactions with the application; _intent formats_, which allow intents to be created by clients, reasoned about by solvers, and processed by application validity predicates; _solver algorithms_, which allow solvers to craft transactions satisfying intents from a specific application or possibly from many other applications;, and _interfaces_, which provide users visual, spatial, and temporal abstractions for interacting with the application.
+![](https://hackmd.io/_uploads/Hk_Pbub2q.png)
 
-# Programming model
+## Fractal instance
 
-One considering the architecture of Anoma from the perspective of users with preferences over states of the system might ask the question of why are there applications at all? Cannot users merely articulate their preferences and the system enact them, without further component intermediation? In principle, they can, but the search space of solvers and difficulty of coordinating the relations between the state of the ledger and state of the world would be computationally intractable without coordination on particular forms of representation and particular logics of preference expression and settlement. Applications describe these particular forms, on which it is necessary to coordinate in order to express, match, and settle intents, and in order to provide simple and accurate interfaces for users. 
+A _fractal instance_ is an instance of the Anoma consensus and execution protocols operated by a set of networked validators. In general, fractal instances are security domains, in that they are operated by a particular set of validators, of which the user must trust a quorum; concurrency domains, in that they maintain a full order of only the transactions which they execute; and data availability domains, in that external observers can query the fractal instance to retrieve parts of its state. Fractal instances are sovereign, in that they do not depend on any other part of the fractal instance graph for continued correct execution, although their validator sets may overlap, a property which can be exploited in certain cases to provide multichain atomic settlement. Fractal instances, in order to be compatible with all features of the network, must implement the Anoma consensus and settlement protocols according to the specification, but they can vary in their chosen sybil-resistance mechanisms, execution pricing, and local governance of protocol versioning, economic distribution regime, and irregular state transitions handling.
+
+# [WIP] Programming model
+
+<!--
+TODO: add a diagram on "here are the components that devs need to understand on a high level"
+-->
+
+Considering the architecture of Anoma from the perspective of users with preferences over states of the system, one might ask the question: why are there applications at all? Cannot users merely articulate their preferences and the system enact them, without further component intermediation? In principle, they can, but the search space of solvers and difficulty of coordinating the relations between the state of the ledger and state of the world would be computationally intractable without coordination on particular forms of representation and particular logics of preference expression and settlement. Applications describe these particular forms, on which it is necessary to coordinate in order to express, match, and settle intents, and in order to provide simple and accurate interfaces for users. 
 
 ## Application components
 
@@ -168,52 +207,109 @@ In Anoma, users distrust applications. Applications are never granted un-restric
 
 Anoma assumes clients are _stateful_ - they are treated as components of the distributed system. Messages will only be sent once, and can be marked as delivered, in which case they will not be kept around. Message history can be reconstructed by reprocessing historical transaction archives.
 
-# Intent lifecycle
 
-## Usage examples
+# Applications
 
-The architecture of Anoma is suitable for any application desiring to provide counterparty discovery and settlement for particular forms of preferences over a particular semantic domain. Here we sketch four applications: private bartering, capital-efficient automated market makers, quadratic public goods funding, and plural money. For each example, we include the actors, intents, validity predicates, intent flow, and privacy properties.
+The architecture of Anoma is suitable for any application desiring to provide counterparty discovery and settlement for particular forms of preferences over a particular semantic domain. Here we enumerate several primitives that Anoma makes available to application developers which they may find of interest. We then list several examples of existing decentralised applications which could benefit from the Anoma architecture, and then describe a few new decentralised applications which have hitherto been impossible or impractical to develop which may now be possible. Finally, we outline how a few currently centralised applications could perhaps be decentralised using this architecture.
 
-### Private bartering
+## Novel primitives for applications
 
-- train tickets, festival tickets, hotel tickets
-- actors: alice, bob, charlie, daniella
-- intents: alice + bob to buy, charlie + daniella to sell
-- VPs involved: ticket VPs, personal VPs
-- Privacy properties: parties to trade know trade, plus solver, 
+Anoma exposes several new primitives to application developers:
+- Incentivised data availability, for data which is expected to be used in the creation of future transactions, provided by the intent gossip layer (see section 6).
+- Programmable solvers, provided by intent gossip nodes running solver algorithms, to which can be outsourced the computational task of finding an atomic state transition (transaction) involving many parties which simultaneously satisifies all of their preferences. 
+- Programmable threshold decryption, provided by Ferveo, which can be used to implement on-demand batching and enforce configurable fairness properties on the processing of application-specific state transitions submitted within a quantised period of logical time.
+- Programmable privacy, provided by zero-knowledge proof systems and fully homomorphic encryption, which can be used to separate verification of properties of data from knowledge of the data itself.
 
-### Capital-efficient AMMs
+These primitives taken together provide the flexibility required to build complex user-friendly applications which provide the desired game theoretic, privacy, and latency properties, such as decentralised quadractic voting & quadratic funding (user-friendly voting through incentivised DA, settlement through solvers, privacy & receipt-freeness through ZKPs & HE).
 
-- liquidity ranges
-- actors: alice, bob, charlie
-- intents: alice + bob to provide liquidity in different ranges, charlie to trade
-- VPs involved: personal VPs incl. components, asset VPs
-- Privacy properties: parties to trade know trade, plus solver, charlie can probably be solver
+## Application examples
 
-### Quadratic public-goods funding
+### Existing decentralized applications
+Applications that exist today, how they'd look like on Anoma?
 
-- actors: funding provider, project creators, many individual funders
-- intents: funding provider to respect quadractic formula, creators to require minimum in order to do anything, individual funders to contribute iff. funding is provided by FP
-- VPs involved: funding provider VP, personal VPs, asset VPs
-- Privacy properties: solver knows, funding provider can probably be solver
+- Decentralized exchanges
+    - fungible & non-fungible
+    - Orderbook exchange
+    - Examples: 0x
+    - Fairness guarantees à la CowSwap
+    - Examples: CoWSwap
+    - More capital efficient AMMs
+        - Uniswap + CoWSwap = UniCow
+    - Marketplaces for non-fungible tokens
+        - NFT orderbook exchange
+        - Examples: Wyvern, Seaport, OpenSea
+- Rollups/L2s:
+    - Optimistic (Optimism)
+    - Zero-knowledge (Starknet)
+- Public Goods Funding Mechanisms
+    - Quadratic public-goods funding
+    - actors: funding provider, project creators, many individual funders
+    - intents: funding provider to respect quadractic formula, creators to require minimum in order to do anything, individual funders to contribute iff. funding is provided by FPcould 
+    - VPs involved: funding provider VP, personal VPs, asset VPs
+    - Privacy properties: solver knows, funding provider can probably be solver
 
-### Plural money
+### Novel applications
 
-- actors: communities, individuals within communities
-- intents: salsa transactions, monetary transfers in & outside of community
-- VPs involved: community currency VPs, personal VPs, SALSA asset VPs
-- Privacy properties: solvers within communities, probably
+Here we sketch a few new decentralised applications which benefit from Anoma's architecture: private DAOs, runtime rollups, multiparty multivariate private bartering, private auctions, and local episodic games.
+
+#### Private DAOs
+
+Operational privacy allows organisations to present (and prove, with verifiability), specific data about the organisations inputs and outputs (e.g. quarterly funding disclosure for a non-profit) without revealing every aspect of decision-making, which is a lot of data from which someone can easily cherry-pick to misrepresent what's really happening, or which members of the public with other agendas (perhaps operating a competing organisation, or with a personal bone to pick with a member of the one in question) can use to start bike-shedding debates or otherwise interfere with organisational operations.
+
+Decentralised autonomous organisations (DAOs) hold the twin promises of organisational _operational transparency_, in that the rules for decision-making are articulated and executed in the same code, which anyone can read, and _operational verifiability_, in that any past actions of the organisation can be proven to a third party to be consistent with this ruleset. In present instantiations, however, they obtain transparency and verifiability by execution on a public blockchain, which comes at the cost of privacy. Anoma's architecture allows for the creation of private DAOs which need make no such compromise: they can keep both decision-making rules and data private, visible only to parties within the organisation, but prove arbitrary properties of each to the world as they choose.
+
+In particular, this system could be used to instantiate something like the plural money system [proposed](https://www.radicalxchange.org/media/blog/plural-money-a-new-currency-design/) by Matt Prewitt and RadicalXChange. Communities could themselves create private DAOs, controlled by members of the community, with internal community currencies, community-owned SALSA-allocated assets, and limitations/taxes on wealth transfer outside the community. 
+
+#### Runtime rollups
+
+Let us take a "rollup" to be the separation of computation and verification such that the verification can be suitably replicated for improved fault-tolerance while the computation need not be. In systems which rely on imperative semantics, and where end-users are signing particular imperative execution paths, rollups are long-lived and must be specifically specified by users. In Anoma's declarative architecture, since users sign intents expressing properties which the execution is required to satisfy rather than any particular execution path, rollups can be created at runtime depending on dynamic demand, and markets for compute may be used rather than replication where doing so is cheaper.
+
+#### Multiparty, multivariate private bartering
+
+Consider three friends, Alice, Bob, and Charlie, a hotel operator Daniella, a festival producer Egbert, and a train company Deutsche Bahn. The festival runs for three weekends in July near Potsdam. Alice, Bob, and Charlie wish to attend the festival together, on the same weekend, and take trains from their respective hometowns of Berlin, Zurich, and Amsterdam. They're flexible about the particular weekend, and would like the combined price of train tickets, hotel rooms, and festival passes to be as low as possible. Egbert wants to sell tickets to his festival, which are fixed-price based on his costs plus markup, but sometimes resold by parties who purchase them early on then later realise that they cannot attend. Deutsche Bahn sells train tickets with variable prices based on demand, Daniella likewise for hotel rooms (and she has both single rooms suitable to host one person and quadruple rooms suitable to host four). Alice, Bob, and Charlie are happy to room with another person, as long as they are also attending the festival (they view this as good evidence of a likely friendship).
+
+In the world today, Alice, Bob, and Charlie might go to the festival's website to look for ticket availability, then try to check hotel and train prices across the three possible weekends and compile a spreadsheet in order to figure out what their costs might be. Of course, while they're busy compiling the spreadsheet, someone else looking to travel could book their hotel room or train seat, and they'd be out of luck. Worse, they could book a hotel room for a particular weekend, then find out that the train tickets are unavailable and be unable to change the hotel room (at least without paying a cancellation fee).
+
+Alice, Bob, Charlie, Daniella, Egbert, and Deutsche Bahn could all use Anoma as a substrate for multiparty private bartering. Each party would author an intent with their preferences, and all intents would either be matched atomically (meaning that train tickets, hotel rooms, and festival passes are booked for all of Alice, Bob, and Charlie in correspondence at once) or not at all. Using private bartering, _what_ Alice, Bob, Charlie, etc. want is public, but _who_ they are need not be revealed.
+
+This can also be used for simpler cases, such as fungible tokens. Users can author intents capturing the semantics of market & limit orders, and also more complex algorithms such as an AMM. Expressed in intent form, an AMM order is simply a price curve along which one is willing to swap two assets (`xy = k`). Users can author AMM intents for the full price range or any subrange (similar to Uniswap v3). Unlike on-chain AMMs, this does not require sending transactions or locking any assets up. 
 
 #### Private auctions
 
-- actors: item seller, parties bidding
-- intents: sale, bids
-- VPs involved: auction VP, personal VPs
-- privacy properties: item public, identities private, bids private
+Independent of more long-term reasons, auctions often benefit from privacy for game-theoretic reasons: a sealed-bid second-price auction gives bidders reason to bid their true value, but requires bid privacy in order to work. Using Anoma, such auctions could be conducted privately, in two different ways. The first and most immediately feasible way is to use programmable threshold decryption to keep all bids encrypted until the auction deadline has passed, then decrypt them all at once, select the highest bidder as the winner and charge them the second-highest price. This can be combined with other privacy techniques for concealment of identity. FHE can also be used to implement private auctions, by performing the bid selection directly as operations on the bids submitted as ciphertexts.
 
-# Component descriptions
+#### Local episodic private games
+
+Consider a digital reenactment of a game of poker. Games of poker are episodic, in that (even if bets are being placed and winners reported to a leaderboard) no interaction or ordering takes place between different games - if users are submitting actions, actions taken by users within the same game must be ordered with respect to actions taken by other users in that game, but not with respect to actions taken by any others. Anoma's fractal instance architecture can instantiate this structure efficiently: players, when they start a poker game, launch a temporary consensus instance (simply operated between themselves) to order state transitions within that game, then submit the results at the end to a poker tracking/statistics application on a more long-running fractal instance. This fractal instance can be run on LAN for low-latency, and transactions need not have any cost (since the set of who can submit them is restricted to the players). 
+
+Poker also requires privacy, primarily keeping a private hand and periodically revealing cards, and randomness (for the deck shuffle), which can be provided by the private execution system and threshold signatures from the threshold cryptosystem in Anoma, respectively.
+
+### Applications beyond crypto
+Paragraph about how the same architecture generalizes the substrate that is required for real-world services and applications.
+
+# Architectural instantiation
 
 The Anoma architecture is complex and requires many individually intricate subcomponents which can be instantiated in a variety of ways with different performance, complexity, and ergonomic tradeoffs. Here we sketch the abstract interfaces required of necessary subcomponents and summarise our current development directions in instantiating them.
+
+## Gossip
+
+The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient and signed by their sender. Nodes craft & enforce local rules around message validity, rebroadcast, and retention. Combined with a settlement ledger and path-authentication-based fees, this provides an incentivised data availability layer for transaction-relevant data, which is used within the Anoma architecture by users to broadcast intents, which are sent around until solvers find counterparties, create transactions, and submit them to fractal instances for settlement.
+
+### Node model
+
+Nodes in the gossip network are assumed to possess a private key, the corresponding public key to which is used as identication. Nodes must totally order and sign all messages which they send, which are unique. Signing two messages with the same nonce is an accountable fault.
+
+In traditional P2P gossip systems, nodes are primarily identified by their IP address, which refers to a physical network destination and is assumed to be long-lived. By contrast, in the Anoma gossip system, nodes are primarily identified by their public key, which can list and periodically rotate IP addresses at which it could potentially be reached (but which a sender does not necessarily need to know in order to send messages). This can be seen as a sort of virtual gossip network, with identity persistence based on secret information (the private keys) which can be freely moved across physical substrates. Local caches of physical routing latency are kept in order to maintain a relatively efficient mapping of the spatially nonlocal virtualised network into the spatially local physical one.
+
+This choice of structure also allows for a conceptually elegant virtualisation of fault-tolerant subsystems: a threshold cryptosystem in combination with consensus (in order to provide ordering) effectively virtualises many nodes as one node, with the threshold key used for incoming and outgoing messages and shares for threshold decryption and threshold signing internally rebroadcast around for reconstruction (encrypted to individual node public keys for privacy). In contrast to other blockchain systems, Anoma's gossip network is not sharded on the basis of security domains (compare to independent blockchain mempools), but rather simply sparse, where real-time demand can inform connection choices and routing tables.
+
+### Path authentication
+
+Anoma's gossip system provides _path authentication_: the receiver of a message can verify a chain of signatures recursively back all the way to the original sender, such that each party in the message chain can be verified to have authorised the next send, and can be both potentially paid for participating in gossip and held accountable for inconsistent ordering across messages. This is accomplished simply by keeping an ordered list of signatures in the message header, which can all be checked by the recipient for correctness and linkage consistency. For efficiency and privacy, validity checks may be compressed and inner path identies may be hidden using zero-knowledge proofs, which the recipient then verifies as a part of receiving the message.
+
+### Gossip incentives
+
+The path authentication system described above can be used to provide a form of gossip incentive whereby a user can broadcast an intent and offer payment to any nodes who participate in a chain of gossip which leads to its eventual settlement. The user simply includes a small fee (the semantics of which are chosen at runtime) which they allow gossip nodes to malleate, so that each node, when forwarding the message, can choose to take a portion of the fee for themselves. If the node can settle the intent by combining it with others, crafting a valid transaction, and submitting it to the appropriate fractal instance, they can claim the fee immediately. If not, the node can choose how much fee to take for themselves before they forward the message. Of course, they can take all the fee, but then there would be no reason for other nodes to rebroadcast or settle the intent, so the node would receive nothing. Nodes can thus be expected to rebroadcast intents taking only enough of the fee such that the expected benefits of potential settlement outweigh the opportunity cost of potentially being able to settle it themselves (but the user can broadcast their intent to many parties, so an individual node who cannot immediately settle it is unlikely to be the first to be able to).
 
 ## Consensus
 
@@ -271,96 +367,47 @@ The Typhon execution environment has only transparent state, which is organised 
 
 The Typhon EE is also responsible for handling asynchronous mesage passing across fractal instances and synchronous (atomic) message passing within chimera chains. The EE handles transport, ordering, and verification, while message semantics are left to higher execution abstraction layers. 
 
-## Gossip
-
-The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient.
-
-- sparse gossip network
-- local rules around message validity
-- messages are all encrypted/signed (so path can be verified)
-- recipient can check signature chain
-- new nodes can join, but trust graph is kept
-
-### Node model
-
-Nodes in the gossip network are assumed to possess a private key, the corresponding public key to which is used as identication. Nodes must totally order and sign all messages which they send, which are unique. Signing two messages with the same nonce is an accountable fault. 
-
-- node virtualisation
-- threshold cryptosystem virtualises many nodes as one node
-	- threshold key for ingoing/outgoing
-	- internally, rebroadcast shares for reconstruction, but encrypted to node pks
-	- what about full nodes?
-		- check attestations
-
-
-
-### Path authentication
-
-- check the path of signature chains
-
-attestable: any node can prove to another node that it received a particular message from a third node.
-
-### Gossip incentives
-
-- pay fees to contributing gossipers
-- 
-
 ## Compilation stack
 
-Juvix -> AnomaVM (runs on EE)
+In order to provide a unified black-box application development interface, the Anoma implementation includes a new language, Juvix, and a compiler stack, designed in tandem to allow developers to write formally verified, privacy-preserving, fault-tolerant distributed applications.
 
-AnomaVM: abstract (info-theoretic) cryptography, low-level instructions
-
-Execution environment: concrete cryptography
-
-VampIR: abstract polynomials -> concrete proof systems
+A great deal of research work into the compiler stack remains and this section should be considered a work in progress. Several components described herein are only partially implemented and alternatives are still under active consideration.
 
 ### Juvix
 
-high-level functional programming language -> anomavm
+Juvix is a high-level function language which compiles to a variant of the simply typed lambda calculus. Programs written in Juvix can express and reason about public, shielded, and private data and operations. Juvix's lambda calculus output language can be compiled to RISCV or WASM through C, or can be compiled to the abstract categorical operations of the AVM which can in turn be instantiated as polynomials, the input language of VampIR.
 
 ### AnomaVM
 
-- access to transparent, shielded, private state
-- abstract cryptography
-- VPs check relation between prior/post states
-	- compiled to some transparent instructions, some ZKP checks, HE instrs
-- WASM/RISC5/special instructions
-- compiles to:
-	- transparent vm for executing party
-	- transparent vm + proofs for parties with shielded state
-	- polynomial representations of circuits
+The AnomaVM (AVM) is a distributed abstract categorical virtual machine. The AVM is designed to capture information theoretic semantics of multiparty interactions and compute without fixing concrete cryptographic representations/instantiations or operational execution semantics. An AVM program directly references agents by role, who can reason about each others state transitions and states through proofs of execution and authentication, and who can send and receive messages to and from each other.
+
+An AVM program itself specifies agents only abstractly, but it can be executed (or compiled, then executed) by any agent, who must specify the role they wish to play (this is a sort of local naming system). The AVM can be compiled through LLVM for transparent execution, and through VampIR for circuits suited to ZKP or FHE execution.
+
+As an operationally neutral abstract representation, the AVM is also the level at which the Anoma architecture defines cost semantics and identity of programs, e.g. different parties may compile AVM programs to different concrete cryptographic and transparent backends for execution.
 
 ### VampIR
 
-abstract polynomial -> concrete polynomial
+VampIR is a language and compiler designed to provide an abstract representation of polynomials, circuits, and constraint systems which can be compiled to different concrete proof systems. The IR is designed to capture the denotational semantics of circuits while remaining agnostic to operational semantics of instantation in various proof systems and cryptographic backends, including ZKP and FHE.
 
 ## Fractal instance components
 
 ### Sybil resistance
 
-proof-of-stake, proof-of-authority, liquid democracy based on identity substrate
+Fractal instances must provide a Sybil resistant mechanism in order to assign voting power in consensus. This can be proof-of-stake, proof-of-authority, hybrid (partially fungible) proof-of-stake, or some form of liquid democracy based on the cryptographic identity substrate.
 
-~ namada PoS
+For further details on the version of proof-of-stake used by the Namada fractal instance, which features bonding, cubic slashing, and auto-compounding reward distribution, see [here](https://specs.namada.net/economics/proof-of-stake.html).
 
 ### Governance
 
-not about irreversible state changes
-unplanned changes
-governance has sybil resistance constraints
-ultimate governance is social consensus
+Fractal instances may provide a governance mechanism for enacting irregular state changes by a (somewhat) more regular process than what would take place without any such system. This governance mechanism itself requires Sybil resistance, which can be the same as used in consensus or a slight variant.
 
-~ namada governance
+For further details on the version of governance used by the Namada fractal instance, which features on-chain and off-chain signalling, see [here](https://specs.namada.net/base-ledger/governance.html).
 
 ### Resource pricing
 
-need a sybil resistance mechanism for expensive compute operations on open network
-eip 1559
-ordering & execution priced separately
-can also be identity-based quotas
+Fracatal instances must provide a Sybil resistance mechanism for performing expensive computational operations upon the receipt of messages which can be sent by anyone in an open network. This Sybil resistance mechanism could be based on fees paid in a network token, identity-based quotas or subscriptions of compute, storage, etc., or low flat per-message limits in combination with network-based rate limiting.
 
-~ namada eip1559
-
+For further details on the version of resource pricing used by the Namada fractal instance, see [here](https://specs.namada.net/economics/fee-system.html).
 
 # Future directions
 
@@ -372,8 +419,21 @@ Encrypted solving (solving intents which are completely private to the solver), 
 
 ## End-to-end behavioural verification
 
-Anoma's architecture covers the domain from (abstract) Turing machines operating node software to (abstract) users authoring intents, and provides guarantees for the behaviours of the system with respect to the latter given certain assumptions about the behaviours of the former. In practice, safe usage of a deployment of Anoma depends not only on the correctness of this system but also on the correctness of the hardware utilised by nodes and the correctness of interfaces utilised by users. 
-- extension of verification into the interface domain
-- extension of verification into the hardware domain
+Anoma's architecture covers the domain from (abstract) Turing machines operating node software to (abstract) users authoring intents, and provides guarantees for the behaviours of the system with respect to the latter given certain assumptions about the behaviours of the former. In practice, safe usage of a deployment of Anoma depends not only on the correctness of this system but also on the correctness of the hardware utilised by nodes and the correctness of interfaces utilised by users. Eventually, this verification could be extended further into the interface and hardware domains.
+
+# Acknowledgements
+TODO.
 
 # References
+
+[1] "Script - Bitcoin Wiki", En.bitcoin.it, 2022. [Online]. Available: https://en.bitcoin.it/wiki/Script. [Accessed: 17- Jul- 2022].
+
+[2] ethereum.org. 2014. Ethereum Whitepaper | ethereum.org. [online] Available at: <https://ethereum.org/en/whitepaper/> [Accessed 16 July 2022].
+
+[3] Weyl, E., Ohlhaver, P. and Buterin, V., 2022. Decentralized Society: Finding Web3's Soul. SSRN Electronic Journal,.
+
+[4] Buchman, E., Kwon, J. and Milosevic, Z., 2018. The latest gossip on BFT consensus. [online] arXiv.org. Available at: <https://arxiv.org/abs/1807.04938> [Accessed 16 July 2022].
+
+[5] 2018. Snowflake to Avalanche: A Novel Metastable Consensus Protocol Family for Cryptocurrencies. [ebook] Available at: <https://ipfs.io/ipfs/QmUy4jh5mGNZvLkjies1RWM4YuvJh5o2FYopNPVYwrRVGV> [Accessed 16 July 2022].
+
+[6] Goes, C., 2020. The Interblockchain Communication Protocol: An Overview. [online] arXiv.org. Available at:<https://arxiv.org/pdf/2006.15918.pdf> [Accessed, 17 July 2022]
