@@ -293,7 +293,7 @@ The Anoma architecture is complex and requires many individually intricate subco
 
 ## Gossip
 
-The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient and signed by their sender. Nodes craft & enforce local rules around message validity, rebroadcast, and retention. Combined with a settlement ledger and path-authentication-based fees, this provides an incentivised data availability layer for transaction-relevant data, which is used within the Anoma architecture by users to broadcast intents, which are sent around until solvers find counterparties, create transactions, and submit them to fractal instances for settlement.
+The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient and signed by their sender. Nodes craft & enforce local rules around message validity, rebroadcast, and retention. Combined with a settlement ledger and path-authentication-based fees, this provides an incentivised data availability layer for transaction-relevant data, which is used within the Anoma architecture by users to broadcast intents, which are sent around until solvers find counterparties, create transactions, and submit them to fractal instances for settlement. Nodes maintain a local trust graph and ruleset around message content validity and rebroadcast criteria. The Anoma gossip system uses an explicit trust model, where the underlying physical network is distrusted, new nodes bootstrap with a set of trusted peer public keys, and nodes maintain trust relations over time, keeping track of who introduced them to whom and applying changes in trust recursively along the trust graph.
 
 ### Node model
 
@@ -422,7 +422,6 @@ Encrypted solving (solving intents which are completely private to the solver), 
 Anoma's architecture covers the domain from (abstract) Turing machines operating node software to (abstract) users authoring intents, and provides guarantees for the behaviours of the system with respect to the latter given certain assumptions about the behaviours of the former. In practice, safe usage of a deployment of Anoma depends not only on the correctness of this system but also on the correctness of the hardware utilised by nodes and the correctness of interfaces utilised by users. Eventually, this verification could be extended further into the interface and hardware domains.
 
 # Acknowledgements
-TODO.
 
 # References
 
