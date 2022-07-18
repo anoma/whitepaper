@@ -68,6 +68,7 @@ In this framework, protocols can be analysed along two dimensions: architecture 
 Consider distributed ledger platforms, from the perspective of applications running on top of them, along these two dimensions: protocol architecture and security model, and whether they are _homogeneous_ or _heterogeneous_ for different applications running on the same platform.
 
 Protocol architecture refers to the state layout, virtual machine, language support, sharding mechanisms, cross-contract messaging model, etc. An architecture determines what is required to write an application for a platform, and applications are specific to a particular architecture.
+
 * Platforms with a *homogeneous* architecture require that all applications are written in a certain format (e.g. EVM bytecode or WASM).
 * Platforms with a *heterogeneous* architecture allow applications to be written in different formats, perhaps with some agreement at the edges, such as cross-chain communication protocols.
 
@@ -79,7 +80,7 @@ Security model refers both to security *in theory*, such as fault tolerance pro
 For illustration, the table below situates several platforms on these two axes:
 
 \begin{tabular}{||l|c|r|p{6cm}||}
-    Platform & Architecture & Security Model \\
+    \textbf{Platform} & \textbf{Architecture} & \textbf{Security Model} \\
     Bitcoin & Homogeneous & Homogeneous \\
 	Ethereum & Homogeneous & Homogeneous \\
 	Ethereum 2 & Homogeneous & Homogeneous \\
