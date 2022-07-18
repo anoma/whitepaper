@@ -6,9 +6,12 @@ date: \textit{Prerelease, \today}
 abstract: |
 	Traditional blockchain platforms are imperative, designed around transactions: state transitions which are ordered and executed. By contrast, the Anoma architecture is declarative, designed around intents and validity predicates: ephemeral and enduring preference functions over possible states which describe which states of the system actors prefer. Anoma’s fractal instance architecture partitions a single logical state across separate operational security zones, allowing users to interact with each other where they share trust assumptions and isolate themselves from faults elsewhere in the network graph. Vertical integration of the two phases of counterparty discovery and settlement allows the protocol to provide end-to-end privacy, safety, and liveness guarantees. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and new decentralised applications which can be built using this architecture. Finally, we outline the current components used to instantiate Anoma and list some future research directions.
 urlcolor: cyan
+classoption:
+    - twocolumn
 header-includes:
     - \usepackage{fancyhdr}
     - \usepackage{graphicx}
+    - \usepackage{supertabular}
     - \pagestyle{plain}
     - \fancyhead[RE,LO]{}
     - \fancyhead[LE,Ro]{}
@@ -16,8 +19,6 @@ header-includes:
     - \fancyfoot[CO,CE]{}
     - \fancyfoot[LE,RO]{\thepage}
 ---
-
-\pagebreak
 
 # Background and motivations
 
@@ -77,16 +78,17 @@ Security model refers both to security *in theory*, such as fault tolerance pro
 
 For illustration, the table below situates several platforms on these two axes:
 
-| Platform     | Protocol Architecture|Security Model|
-|--------------|----------------------|--------------|
-| Bitcoin      | Homogeneous          | Homogeneous  |
-| Ethereum     | Homogeneous          | Homogeneous  |
-| Ethereum 2.0 | Homogeneous          | Homogeneous  |
-| Polkadot     | Heterogeneous        | Homogeneous  |
-| Near         | Homogeneous          | Homogeneous  |
-| Cosmos       | Heterogeneous        | Heterogeneous|
-| Multichain   | Heterogeneous        | Heterogeneous|
-| Anoma        | Homogeneous          | Heterogeneous|
+\begin{tabular}{||l|c|r|p{6cm}||}
+    Platform & Architecture & Security Model \\
+    Bitcoin & Homogeneous & Homogeneous \\
+	Ethereum & Homogeneous & Homogeneous \\
+	Ethereum 2 & Homogeneous & Homogeneous \\
+	Polkadot & Heterogeneous & Homogeneous \\
+	Near & Homogeneous & Homogeneous \\
+	Cosmos & Heterogeneous & Heterogeneous \\
+	Multichain & Heterogeneous & Heterogeneous \\
+	Anoma & Homogeneous & Heterogeneous \\
+\end{tabular}
 
 As the table suggests, these dimensions are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It is easier to design a system where they are correlated. If everything is homogeneous, protocols can be fit together neatly, and functionalities including cross-contract communication are easy; whereas if everything is heterogeneous, protocols just agree on the edges of interaction, for instance via the Inter-Blockchain Communication protocol (IBC)[6], and handling the complexity of security is up to the users and application developers.
 
