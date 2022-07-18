@@ -20,8 +20,6 @@ header-includes:
     - \fancyfoot[LE,RO]{\thepage}
 ---
 
-\pagebreak
-
 # Background and motivations
 
 The release of the Bitcoin protocol in 2008 marked the beginning of *scriptable settlement*, a category of distributed ledger architectures that is suitable for cryptocurrencies with discrete properties and monetary policies. Although it is not Turing-complete, Bitcoin Script[1] is able to support applications beyond currencies, such as Namecoin and Colored Coins. As discussed in the Ethereum Whitepaper[2], while applications built on scriptable settlement are functional, this architecture requires too many trade-offs that resulted in constrained properties and usability.
@@ -81,22 +79,16 @@ Security model refers both to security *in theory*, such as fault tolerance pro
 For illustration, the table below situates several platforms on these two axes:
 
 \begin{tabular}{||l|c|r|p{6cm}||}
-    Left & Center & Right & Paragraph \\
-    1 & 1 & 1 & Lorem ipsum dolor sit amet, consectetuer adipiscing elit. \\
-    12 & 12 & 12 & Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis. \\
-    123 & 123 & 123 & Curabitur dictum gravidamauris. \\
+    Platform & Architecture & Security Model \\
+    Bitcoin & Homogeneous & Homogeneous \\
+	Ethereum & Homogeneous & Homogeneous \\
+	Ethereum 2 & Homogeneous & Homogeneous \\
+	Polkadot & Heterogeneous & Homogeneous \\
+	Near & Homogeneous & Homogeneous \\
+	Cosmos & Heterogeneous & Heterogeneous \\
+	Multichain & Heterogeneous & Heterogeneous \\
+	Anoma & Homogeneous & Heterogeneous \\
 \end{tabular}
-
-<!-- | Platform     | Protocol Architecture|Security Model|
-|--------------|----------------------|--------------|
-| Bitcoin      | Homogeneous          | Homogeneous  |
-| Ethereum     | Homogeneous          | Homogeneous  |
-| Ethereum 2.0 | Homogeneous          | Homogeneous  |
-| Polkadot     | Heterogeneous        | Homogeneous  |
-| Near         | Homogeneous          | Homogeneous  |
-| Cosmos       | Heterogeneous        | Heterogeneous|
-| Multichain   | Heterogeneous        | Heterogeneous|
-| Anoma        | Homogeneous          | Heterogeneous| -->
 
 As the table suggests, these dimensions are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It is easier to design a system where they are correlated. If everything is homogeneous, protocols can be fit together neatly, and functionalities including cross-contract communication are easy; whereas if everything is heterogeneous, protocols just agree on the edges of interaction, for instance via the Inter-Blockchain Communication protocol (IBC)[6], and handling the complexity of security is up to the users and application developers.
 
