@@ -4,7 +4,7 @@ author: Christopher Goes, Awa Sun Yin, Adrian Brink
 fontsize: 9pt
 date: \textit{Prerelease, \today}
 abstract: |
-	To be written in the end.
+	Traditional blockchain platforms are imperative, designed around transactions: state transitions which are ordered and executed. By contrast, the Anoma architecture is declarative, designed around intents and validity predicates: ephemeral and enduring preference functions over possible states which describe which states of the system actors prefer. Anoma’s fractal instance architecture partitions a single logical state across separate operational security zones, allowing users to interact with each other where they share trust assumptions and isolate themselves from faults elsewhere in the network graph. Vertical integration of the two phases of counterparty discovery and settlement allows the protocol to provide end-to-end privacy, safety, and liveness guarantees. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and new decentralised applications which can be built using this architecture. Finally, we outline the current components used to instantiate Anoma and list some future research directions.
 urlcolor: cyan
 classoption:
     - twocolumn
@@ -122,8 +122,8 @@ Spatiotemporal locality: No absolute clock, per Einstein, clocks are relative. S
 
 Limited computational speed: NP != P, searching for satisfying computations must be specialised to the particular form and is to be exposed in the programming interface. Quality-of-service guarantees require bounded compute.
 
-Limited computational speed motivates the separation of the role of solver from the role of settlement. Spatiotemporal locality and heterogeneous trust motivate separation of security and concurrency domains. --> To be included in a future version
- 
+Limited computational speed motivates the separation of the role of solver from the role of settlement. Spatiotemporal locality and heterogeneous trust motivate separation of security and concurrency domains. --> 
+
 # Architectural topology
 
 Anoma's architectural topology consists of a set of logical abstractions delineated by their role in dataflow, independent of particluar forms of representation, deployment models, choices of cryptographic implementation, etc. Particular instantiations carry different concrete performance and security implications and should be chosen according to requirements of the specific deployment in question.
@@ -191,7 +191,7 @@ An _application_ is a semantic domain governing the form and logic of a particul
 
 A _fractal instance_ is an instance of the Anoma consensus and execution protocols operated by a set of networked validators. In general, fractal instances are security domains, in that they are operated by a particular set of validators, of which the user must trust a quorum; concurrency domains, in that they maintain a full order of only the transactions which they execute; and data availability domains, in that external observers can query the fractal instance to retrieve parts of its state. Fractal instances are sovereign, in that they do not depend on any other part of the fractal instance graph for continued correct execution, although their validator sets may overlap, a property which can be exploited in certain cases to provide multichain atomic settlement. Fractal instances, in order to be compatible with all features of the network, must implement the Anoma consensus and settlement protocols according to the specification, but they can vary in their chosen sybil-resistance mechanisms, execution pricing, and local governance of protocol versioning, economic distribution regime, and irregular state transitions handling.
 
-# [WIP] Programming model
+# Programming model
 
 <!--
 TODO: add a diagram on "here are the components that devs need to understand on a high level"
@@ -235,28 +235,18 @@ These primitives taken together provide the flexibility required to build comple
 ## Application examples
 
 ### Existing decentralized applications
-Applications that exist today, how they'd look like on Anoma?
 
-- Decentralized exchanges
-    - fungible & non-fungible
-    - Orderbook exchange
-    - Examples: 0x
-    - Fairness guarantees à la CowSwap
-    - Examples: CoWSwap
-    - More capital efficient AMMs
-        - Uniswap + CoWSwap = UniCow
-    - Marketplaces for non-fungible tokens
-        - NFT orderbook exchange
-        - Examples: Wyvern, Seaport, OpenSea
-- Rollups/L2s:
-    - Optimistic (Optimism)
-    - Zero-knowledge (Starknet)
-- Public Goods Funding Mechanisms
-    - Quadratic public-goods funding
-    - actors: funding provider, project creators, many individual funders
-    - intents: funding provider to respect quadractic formula, creators to require minimum in order to do anything, individual funders to contribute iff. funding is provided by FPcould 
-    - VPs involved: funding provider VP, personal VPs, asset VPs
-    - Privacy properties: solver knows, funding provider can probably be solver
+#### Decentralised exchanges
+
+Existing decentralised exchanges for both fungible and non-fungible tokens, such as 0x, CoWSwap, Uniswap, Wyvern, and Seaport, require both counterparty discovery and settlement, and often have additional requirements such as batched/fair execution. At the moment, such proejcts either use the blockchain itself for counterparty discovery (Uniswap) or operate with orderbooks controlled by specific parties (0x, Wyvern, Seaport, CoWSwap), which tend to be trusted for fair ordering and optimal execution. Using Anoma, these parties could be replaced by the intent gossip and solving layer. Orders to buy or sell particular assets would instead be broadcast across the intent gossip network as intents, matched by a solver (who could collect any number of intents in order to balance a trade), and submitted for settlement to the fractal instance holding the assets in question. Threshold decryption can be used for fairness across batches.
+
+#### Rollups
+
+Existing rollups, such as Arbitrum, Optimism, and StarkNet, operate with a single centralised sequencer and solver responsible for ordering transactions, calculating state updates, and submitting updated states to the root chain (in these cases, Ethereum). This sequencer is trusted with fair ordering and optimal solving, and can selectively omit transactions, so these projects (among others) have expressed a desire to decentralise the sequencer. As a decentralised sequencer is simply a consensus instance, such rollups could instantiate an Anoma fractal instance, using Typhon consensus, to operate their sequencer, and submit zero-knowledge or optimistic proofs of execution to Ethereum as they currently do.
+
+#### Public-goods funding
+
+Quadratic funding, as implemented by Gitcoin, requires both counterparty discovery (as the funding provider's payouts depend on individual donations) and settlement. Using Anoma, QF can be implemented in a manner which preserves individual privacy and provides excellent UX (e.g., donating to projects carries no fees). The funding provider, project creators, and all invidual donators each author intents reflecting their willingness to commit funds, execute on a project, and donate, respectively. A solver algorithm matches these intents and creates a single transaction to settle at the end of the QF round (the funding provider can probably pay the settlement fees). Amounts of donations must be public in order to perform the QF calculations, but individual identities can be kept private using Anoma's private execution environment. Expressive intents can also capture additional dimensionality which is difficult to represent in a simpler QF model - for example, many projects might require a certain amount of funding in order to do anything at all, and only wish to receive funding (and commit to action) should a certain threshold be met. This can be expressed as a constraint in the intent, and the solver must either find enough funding to meet the threshold or omit the project, as desired, in order for the final settlement transaction to be valid.
 
 ### Novel applications
 
@@ -294,16 +284,13 @@ Consider a digital reenactment of a game of poker. Games of poker are episodic, 
 
 Poker also requires privacy, primarily keeping a private hand and periodically revealing cards, and randomness (for the deck shuffle), which can be provided by the private execution system and threshold signatures from the threshold cryptosystem in Anoma, respectively.
 
-### Applications beyond crypto
-Paragraph about how the same architecture generalizes the substrate that is required for real-world services and applications.
-
 # Architectural instantiation
 
 The Anoma architecture is complex and requires many individually intricate subcomponents which can be instantiated in a variety of ways with different performance, complexity, and ergonomic tradeoffs. Here we sketch the abstract interfaces required of necessary subcomponents and summarise our current development directions in instantiating them.
 
 ## Gossip
 
-The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient and signed by their sender. Nodes craft & enforce local rules around message validity, rebroadcast, and retention. Combined with a settlement ledger and path-authentication-based fees, this provides an incentivised data availability layer for transaction-relevant data, which is used within the Anoma architecture by users to broadcast intents, which are sent around until solvers find counterparties, create transactions, and submit them to fractal instances for settlement.
+The Anoma gossip system is a pseudononymously identified, path-authenticated, fault-accountable sparse overlay network. In contrast to conventional peer-to-peer gossip networks, this system is designed to operate privately by default, with optional attestations. Nodes are identified by cryptographic keys and all messages are encrypted to their recipient and signed by their sender. Nodes craft & enforce local rules around message validity, rebroadcast, and retention. Combined with a settlement ledger and path-authentication-based fees, this provides an incentivised data availability layer for transaction-relevant data, which is used within the Anoma architecture by users to broadcast intents, which are sent around until solvers find counterparties, create transactions, and submit them to fractal instances for settlement. Nodes maintain a local trust graph and ruleset around message content validity and rebroadcast criteria. The Anoma gossip system uses an explicit trust model, where the underlying physical network is distrusted, new nodes bootstrap with a set of trusted peer public keys, and nodes maintain trust relations over time, keeping track of who introduced them to whom and applying changes in trust recursively along the trust graph.
 
 ### Node model
 
@@ -432,7 +419,6 @@ Encrypted solving (solving intents which are completely private to the solver), 
 Anoma's architecture covers the domain from (abstract) Turing machines operating node software to (abstract) users authoring intents, and provides guarantees for the behaviours of the system with respect to the latter given certain assumptions about the behaviours of the former. In practice, safe usage of a deployment of Anoma depends not only on the correctness of this system but also on the correctness of the hardware utilised by nodes and the correctness of interfaces utilised by users. Eventually, this verification could be extended further into the interface and hardware domains.
 
 # Acknowledgements
-TODO.
 
 # References
 
