@@ -1,10 +1,10 @@
 ---
-title: 'Anoma: an unified architecture for full-stack decentralized applications'
+title: 'Anoma: a unified architecture for full-stack decentralised applications'
 author: Christopher Goes, Awa Sun Yin, Adrian Brink
 fontsize: 9pt
 date: \textit{Prerelease, \today}
 abstract: |
-	Traditional blockchain platforms are imperative, designed around transactions: state transitions which are ordered and executed. By contrast, the Anoma architecture is declarative, designed around intents and validity predicates: ephemeral and enduring preference functions over possible states which describe which states of the system actors prefer. Anoma’s fractal instance architecture partitions a single logical state across separate operational security zones, allowing users to interact with each other where they share trust assumptions and isolate themselves from faults elsewhere in the network graph. Vertical integration of the two phases of counterparty discovery and settlement allows the protocol to provide end-to-end privacy, safety, and liveness guarantees. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and new decentralised applications which can be built using this architecture. Finally, we outline the current components used to instantiate Anoma and list some future research directions.
+	Programmable settlement architectures do not enable counterparty discovery and solving, which are necessary to build the vast majority of compelling applications that are interactive, multi-party applications. The architectural constraints of programmable settlement result in contemporary application protocols that have at least one Web2 component, which becomes the centralisation point. We present Anoma, a unifified architecture for full-stack decentralised applications – designed following the principles of intent-centricity, and homogeneous architecture and heterogeneous security, constituting a declarative paradigm for building applications. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and novel decentralised applications which can be built using the novel prrimitives. Finally, we outline the current components used to instantiate Anoma and list future research directions.
 urlcolor: cyan
 classoption:
     - twocolumn
@@ -28,13 +28,13 @@ The introduction of the Ethereum protocol in 2014 set the precedent for *program
 
 Proposed and deployed blockchain protocols since Ethereum's release have brought significant improvements to specific architectural components, for instance: consensus mechanisms (Tendermint[4], Avalanche[5]), Sybil-resistance mechanisms (proof-of-stake, proof-of-storage, etc.), scaling solutions (sharding, rollups, etc.), and cryptographic schemes (zero-knowledge proofs) – but these improvements to constituent primitives do not change the basic architecture of programmable settlement.
 
-While programmable settlement is sufficient for certain applications, many contemporary applications have further requirements. Settlement suffices when the involved parties have already decided what and with whom to settle, but contemporary applications often also require infrastructure for helping potential counterparties discover each other and decide with whom and on what to settle. As a workaround, existing applications have usually adopted an architecture that relies on one or many permissioned or centralized components (such as provers, solvers, or sequencers), usually implemented as Web2 services, in their stack.
+While programmable settlement is sufficient for certain applications, many contemporary applications have further requirements. Settlement suffices when the involved parties have already decided what and with whom to settle, but contemporary applications often also require infrastructure for helping potential counterparties discover each other and decide with whom and on what to settle. As a workaround, existing applications have usually adopted an architecture that relies on one or many permissioned or centralised components (such as provers, solvers, or sequencers), usually implemented as Web2 services, in their stack.
 
-Examples include decentralized exchanges for fungible assets (0x, CoWSwap, Uniswap), for non-fungible assets (Wyvern, LooksRare, OpenSea), novel voting/funding mechanisms (quadratic voting/funding, Gitcoin), and rollups (Optimism, Arbitrum, Starknet, zkSync) – their architectures involve at least one centralised component that often results in a loss of permissionlessness, fault-tolerance, censorship-resistance, or privacy.
+Examples include decentralised exchanges for fungible assets (0x, CoWSwap, Uniswap), for non-fungible assets (Wyvern, LooksRare, OpenSea), novel voting/funding mechanisms (quadratic voting/funding, Gitcoin), and rollups (Optimism, Arbitrum, Starknet, zkSync) – their architectures involve at least one centralised component that often results in a loss of permissionlessness, fault-tolerance, censorship-resistance, or privacy.
 
-One emerging approach for applications seeking to avoid centralization points in their architecture is to deploy an application-specific sovereign chain to replace a specific component in the stack. Even though this approach can solve the immediate centralization problem, it comes with substantial trade-offs, such as the loss of network effects (application composability and software re-use) or the addition of disproportionate complexity to developers and users, who need to reason about multi-layered security, privacy, and latency domains.
+One emerging approach for applications seeking to avoid centralisation points in their architecture is to deploy an application-specific sovereign chain to replace a specific component in the stack. Even though this approach can solve the immediate centralisation problem, it comes with substantial trade-offs, such as the loss of network effects (application composability and software re-use) or the addition of disproportionate complexity to developers and users, who need to reason about multi-layered security, privacy, and latency domains.
 
-In this paper we present Anoma. Anoma is a unified architecture for full-stack decentralized applications – characterised by its intent-centricity, decentralised counterparty discovery and computational outsourcing of NP search problems to solvers which compute valid state transitions. With this architecture, contemporary applications can be built without compromising permissionlessness, fault-tolerance, censorship-resistance, or privacy.
+In this paper we present Anoma. Anoma is a unified architecture for full-stack decentralised applications – characterised by its intent-centricity, decentralised counterparty discovery and computational outsourcing of NP search problems to solvers which compute valid state transitions. With this architecture, contemporary applications can be built without compromising permissionlessness, fault-tolerance, censorship-resistance, or privacy.
 
 Anoma's architecture also exposes novel primitives, such as composable privacy, which enables applications to handle transparent, shielded, and private state and operations; and multi-chain atomic settlement, which allows users and applications with different security preferences to obtain atomicity. These and other novel primitives pave the way for the development of applications that cannot be built with existing architectures, several of which we enumerate in section 5.
 
@@ -50,11 +50,11 @@ Existing protocols are designed with *transactions* as their most fundamental un
 
 An intent-centric architecture is necessary to enable counterparty discovery, which is crucial for compelling applications, since they require multiparty coordination and to enable full-stack decentralised applications. Anoma vertically integrates counterparty discovery, solving and settlement and is able to interpret and process intents natively and generically. Contemporary applications, as described earlier, require both counterparty discovery and settlement. Intents are the point at which users interact with such applications, and an intent-centric design captures the requirements of applications which need these two processes to work in tandem and satisfy censorship-resistance, privacy, and fault-tolerance properties.
 
-Intent-centric design also constitutes a *declarative paradigm* for building applications, since Anoma is designed to settle intents *as defined* by the users – an intent is either settled as defined, or not settled at all. This declarative model gives users a significantly higher degree of control, *without* requiring them to understand the underlying protocol primitives and execution flows, which is crucial in order for decentralised applications to reach mass adoption. This paradigm presents a radically different approach as compared to existing *transaction-centric* architectures that default to an *imperative model* for applications. In the latter, users are required to understand the full execution trace to benefit from security and privacy guarantees, because instead of authorizing a specific state change, they authorise specific execution paths. In practice, this is so difficult that users commonly interact with applications without understanding the risks.
+Intent-centric design also constitutes a *declarative paradigm* for building applications, since Anoma is designed to settle intents *as defined* by the users – an intent is either settled as defined, or not settled at all. This declarative model gives users a significantly higher degree of control, *without* requiring them to understand the underlying protocol primitives and execution flows, which is crucial in order for decentralised applications to reach mass adoption. This paradigm presents a radically different approach as compared to existing *transaction-centric* architectures that default to an *imperative model* for applications. In the latter, users are required to understand the full execution trace to benefit from security and privacy guarantees, because instead of authorising a specific state change, they authorise specific execution paths. In practice, this is so difficult that users commonly interact with applications without understanding the risks.
 
 For application developers, Anoma's intent-centric architecture enables them to build *safer by construction applications* by leveraging the combination of intents and *validity predicates*. Validity predicates are an architecture for smart contracts which separate out cleanly the task of computing state transitions and the task of verifying correctness of state transitions, as compared to message-passing VM execution models (pervasive in current programmable settlement architectures) which interleaves computation and verification. Validity predicates allow application developers to reason about the invariants which they would like their application to satisfy without worrying about how other applications interact with it, since the validity predicate of their application expresses these invariants directly.
 
-## Homogeneous architecture / heterogeneous security
+## Homogeneous architecture, heterogeneous security
 
 The Anoma protocol, just like the TCP/IP protocol stack, follows the principle of homogeneous architecture and heterogeneous security. In TCP/IP, the various layers of the internet protocol are standardised, but the choice of whom to connect to and what data to entrust them with is left to the user, and different users can make different choices while using the same protocol stack. In Anoma, the various layers of counterparty discovery, solving, and settlement are similarily standardised, but the choice of what security domains to trust and what data to send to whom are left to the user, and different users can make different choices while using the same protocol stack.
 
@@ -122,7 +122,10 @@ Anoma's architectural topology consists of a set of logical abstractions delinea
 
 We offer a sketch of our choices for different deployments in section 5.
 
-![](https://hackmd.io/_uploads/BJz9-qZ2q.png)
+\begin{figure*}
+  \includegraphics[width=\textwidth,keepaspectratio]{./diagrams/intents-lifecycle.png}
+  \caption{The lifecycle of a transparent, shielded, and private intent in the Anoma architecture}
+\end{figure*}
 
 ## Nodes and network layer
 
@@ -138,11 +141,11 @@ Intents are partial and hence specific counterparties are not required, albeit t
 
 ## Intent gossip layer
 
-The _intent gossip layer_ is a virtual sparse overlay network for dissemination of intents, counterparty discovery, and solving (when a solver combines multiple intents to craft a valid transaction). The intent gossip layer consists of sparsely networked _intent gossip nodes_, where _intent gossip_ is a role any node can play. When a client authors an intent which requires solving, it broadcast the signed intent to an _intent gossip node_, which further relays the intent over the intent gossip layer. This broadcast can be directed, where the node picks specific other nodes based on privacy, solving specialization or other criteria, or undirected, where the node broadcasts the intent as widely as possible. Intents can contain a settlement-conditional fee, to be paid only if the intent is satisfied, settled and confirmed by consensus. Furthermore this fee can be split between all nodes involved in the gossip and the ultimate solver. Intents can pay a fee for confirmation and ordering of the (likely encrypted) intent in a data availability domain where solvers compete to find the best match for each batch of intents.
+The _intent gossip layer_ is a virtual sparse overlay network for dissemination of intents, counterparty discovery, and solving (when a solver combines multiple intents to craft a valid transaction). The intent gossip layer consists of sparsely networked _intent gossip nodes_, where _intent gossip_ is a role any node can play. When a client authors an intent which requires solving, it broadcast the signed intent to an _intent gossip node_, which further relays the intent over the intent gossip layer. This broadcast can be directed, where the node picks specific other nodes based on privacy, solving specialisation or other criteria, or undirected, where the node broadcasts the intent as widely as possible. Intents can contain a settlement-conditional fee, to be paid only if the intent is satisfied, settled and confirmed by consensus. Furthermore this fee can be split between all nodes involved in the gossip and the ultimate solver. Intents can pay a fee for confirmation and ordering of the (likely encrypted) intent in a data availability domain where solvers compete to find the best match for each batch of intents.
 
 ## Solver
 
-A _solver_ is a node which elects to receive all or a subset of intents and computes solutions over the set of intents. It achieves this by running one or many _solver algorithms_. These algorithms are local and different solvers compete with each other to satisfy the presented constrain system. In practice most solvers will likely specialize in certain applications, such as fungible token trading or computing rollup states. Solvers are permissionless and anyone can act as the role of solver. Solvers can decide which intents to accept and should generally only consider those that are worth the storage and bandwidth costs (perhaps due to a fee or an expected spread from a trade). The solver algorithm searches the space of possible solutions based on the current state of the settlement layer and the known intent pool with the aim of finding subsets of compinable intents to generate transactions which are acceped by the settlement layer. 
+A _solver_ is a node which elects to receive all or a subset of intents and computes solutions over the set of intents. It achieves this by running one or many _solver algorithms_. These algorithms are local and different solvers compete with each other to satisfy the presented constrain system. In practice most solvers will likely specialise in certain applications, such as fungible token trading or computing rollup states. Solvers are permissionless and anyone can act as the role of solver. Solvers can decide which intents to accept and should generally only consider those that are worth the storage and bandwidth costs (perhaps due to a fee or an expected spread from a trade). The solver algorithm searches the space of possible solutions based on the current state of the settlement layer and the known intent pool with the aim of finding subsets of compinable intents to generate transactions which are acceped by the settlement layer. 
 
 ## Transaction
 
@@ -176,8 +179,12 @@ An _execution environment_ is an algorithm for taking the current state and a se
 
 ## Application
 
-An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. An application consists of _state_, which may be partioned across multiple fractal instances and shards within those instances; _application validity predicates_, which govern changes to the application's state; _user validity predicate components_, which can be included by the user in order to authorize certain interactions with the application; _intent formats_, which allow intents to be created by clients, reasoned about by solvers, and processed by application validity predicates; _solver algorithms_, which allow solvers to craft transactions satisfying intents from a specific application or possibly from many other applications;, and _interfaces_, which provide users visual, spatial, and temporal abstractions for interacting with the application.
-![](https://hackmd.io/_uploads/Hk_Pbub2q.png)
+An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. An application consists of _state_, which may be partioned across multiple fractal instances and shards within those instances; _application validity predicates_, which govern changes to the application's state; _user validity predicate components_, which can be included by the user in order to authorise certain interactions with the application; _intent formats_, which allow intents to be created by clients, reasoned about by solvers, and processed by application validity predicates; _solver algorithms_, which allow solvers to craft transactions satisfying intents from a specific application or possibly from many other applications;, and _interfaces_, which provide users visual, spatial, and temporal abstractions for interacting with the application.
+
+\begin{figure*}
+   \includegraphics[width=\textwidth,keepaspectratio]{./diagrams/user-applications.png}
+  \caption{End-user interfaces of applications on Anoma}
+\end{figure*}
 
 ## Fractal instance
 
@@ -226,7 +233,7 @@ These primitives taken together provide the flexibility required to build comple
 
 ## Application examples
 
-### Existing decentralized applications
+### Existing decentralised applications
 
 #### Decentralised exchanges
 
@@ -345,8 +352,7 @@ Conversion between the three data realms is handled as follows:
 - Shielded -> Private: Shielded data can be computed over in zero-knowledge, and then encrypted to the threshold key, where correct encryption is proved in zero-knowledge and only the encrypted value is revealed to the operator.
 - Shielded -> Transparent: Properties of shielded data can be proved in zero-knowledge and then revealed to the operator along with the proof.
 - Private -> Transparent: Private ciphertexts can be decrypted using threshold decryption. This process is asynchronous.
-- Private -> Shielded: Private ciphertexts can be re-encrypted to another public key and thus become shielded data. This process is asynchronous. 
-
+- Private -> Shielded: Private ciphertexts can be re-encrypted to another public key and thus become shielded data. This process is asynchronous.
 
 ### Typhon Transparent EE
 
