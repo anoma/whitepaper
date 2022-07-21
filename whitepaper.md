@@ -2,9 +2,9 @@
 title: 'Anoma: a unified architecture for full-stack decentralised applications'
 author: Christopher Goes, Awa Sun Yin, Adrian Brink
 fontsize: 9pt
-date: \textit{Prerelease, \today}
+date: \textit{Pre-release, \today}
 abstract: |
-	Programmable settlement architectures do not enable counterparty discovery and solving, both of which are necessary to build the majority of interactive multi-party applications. The architectural constraints of programmable settlement result in contemporary application protocols that have at least one Web2 component, which becomes the centralisation point. We present Anoma, a unified architecture for full-stack decentralised applications. Anoma is designed following the principles of intent-centricity and homogeneous architecture / heterogeneous security, together constituting a declarative application-development paradigm. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and novel decentralised applications which can be built using the novel prrimitives. Finally, we outline the current components used to instantiate Anoma and list future research directions.
+	Programmable settlement architectures do not enable counterparty discovery and solving, both of which are necessary to build the majority of interactive multi-party applications. The architectural constraints of programmable settlement result in contemporary application protocols that have at least one Web2 component, which becomes the centralisation point. We present Anoma, a unified architecture for full-stack decentralised applications. Anoma is designed following the principles of intent-centricity and homogeneous architecture / heterogeneous security, together constituting a declarative paradigm for building decentralised applications. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and novel decentralised applications that can be built using the novel primitives. Finally, we outline the current components used to instantiate Anoma and list future research directions.
 urlcolor: cyan
 classoption:
     - twocolumn
@@ -225,6 +225,7 @@ The architecture of Anoma is suitable for any application desiring to provide co
 ## Novel primitives for applications
 
 Anoma exposes several new primitives to application developers:
+
 - Incentivised data availability, for data which is expected to be used in the creation of future transactions, provided by the intent gossip layer (see section 6).
 - Programmable solvers, provided by intent gossip nodes running solver algorithms, to which can be outsourced the computational task of finding an atomic state transition (transaction) involving many parties which simultaneously satisifies all of their preferences. 
 - Programmable threshold decryption, provided by Ferveo, which can be used to implement on-demand batching and enforce configurable fairness properties on the processing of application-specific state transitions submitted within a quantised period of logical time.
