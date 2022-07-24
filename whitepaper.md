@@ -14,6 +14,7 @@ header-includes:
     - \usepackage{supertabular}
     - \usepackage{booktabs}
     - \usepackage{array}
+    - \usepackage{tabularx}
     - \pagestyle{plain}
     - \fancyhead[RE,LO]{}
     - \fancyhead[LE,Ro]{}
@@ -81,12 +82,12 @@ Security model refers both to security *in theory*, such as fault tolerance pro
 
 For illustration, the table below situates several platforms on these two axes:
 
-\begin{table}[ht]
+\begin{table}[h]
 \centering
-\begin{tabular}[t]{lll}
+\begin{tabularx}{\linewidth}[t]{lll}
 \toprule
-  \textbf{Platform} & \textbf{Architecture} & \textbf{Security Model} \\
-  \midrule
+\textbf{Platform} & \textbf{Architecture} & \textbf{Security Model}\\
+\midrule
   Bitcoin & Homogeneous & Homogeneous \\
 	Ethereum & Homogeneous & Homogeneous \\
 	Ethereum 2.0 & Homogeneous & Homogeneous \\
@@ -96,7 +97,7 @@ For illustration, the table below situates several platforms on these two axes:
 	Multichain & Heterogeneous & Heterogeneous \\
 	Anoma & Homogeneous & Heterogeneous \\
   \bottomrule
-\end{tabular}
+\end{tabularx}
 \caption{An analysis of platforms based on their architecture and security model}
 \end{table}
 
