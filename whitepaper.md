@@ -12,6 +12,8 @@ header-includes:
     - \usepackage{fancyhdr}
     - \usepackage{graphicx}
     - \usepackage{supertabular}
+    - \usepackage{booktabs}
+    - \usepackage{array}
     - \pagestyle{plain}
     - \fancyhead[RE,LO]{}
     - \fancyhead[LE,Ro]{}
@@ -79,17 +81,24 @@ Security model refers both to security *in theory*, such as fault tolerance pro
 
 For illustration, the table below situates several platforms on these two axes:
 
-\begin{tabular}{||l|c|r|p{6cm}||}
-    \textbf{Platform} & \textbf{Architecture} & \textbf{Security Model} \\
-    Bitcoin & Homogeneous & Homogeneous \\
+\begin{table}[ht]
+\centering
+\begin{tabular}[t]{lll}
+\toprule
+  \textbf{Platform} & \textbf{Architecture} & \textbf{Security Model} \\
+  \midrule
+  Bitcoin & Homogeneous & Homogeneous \\
 	Ethereum & Homogeneous & Homogeneous \\
-	Ethereum 2 & Homogeneous & Homogeneous \\
+	Ethereum 2.0 & Homogeneous & Homogeneous \\
 	Polkadot & Heterogeneous & Homogeneous \\
 	Near & Homogeneous & Homogeneous \\
 	Cosmos & Heterogeneous & Heterogeneous \\
 	Multichain & Heterogeneous & Heterogeneous \\
 	Anoma & Homogeneous & Heterogeneous \\
+  \bottomrule
 \end{tabular}
+\caption{An analysis of platforms based on their architecture and security model}
+\end{table}
 
 As the table suggests, these dimensions are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It is easier to design a system where they are correlated. If everything is homogeneous, protocols can be fit together neatly, and functionalities including cross-contract communication are easy; whereas if everything is heterogeneous, protocols just agree on the edges of interaction, for instance via the Inter-Blockchain Communication protocol (IBC)[6], and handling the complexity of security is up to the users and application developers.
 
