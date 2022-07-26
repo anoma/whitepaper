@@ -134,7 +134,7 @@ Anoma's architectural topology consists of a set of logical abstractions delinea
 We offer a sketch of our choices for different deployments in section 5.
 
 \begin{figure*}
-  \includegraphics[width=\textwidth,keepaspectratio]{./diagrams/intents-lifecycle.png}
+  \includegraphics[width=\textwidth,keepaspectratio]{./diagrams/intents-lifecycle.jpeg}
   \caption{The lifecycle of a transparent, shielded, and private intent in the Anoma architecture}
 \end{figure*}
 
