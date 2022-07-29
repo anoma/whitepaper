@@ -6,6 +6,7 @@ date: \textit{Pre-release, \today}
 abstract: |
 	Programmable settlement architectures do not enable counterparty discovery and solving, both of which are necessary to build the majority of interactive multi-party applications. The architectural constraints of programmable settlement result in contemporary application protocols that have at least one Web2 component, which becomes the centralisation point. We present Anoma, a unified architecture for full-stack decentralised applications. Anoma is designed following the principles of intent-centricity and homogeneous architecture / heterogeneous security, together constituting a declarative paradigm for building decentralised applications. In this paper, we first outline the Anoma architecture, provide an intuition for the design rationale, and describe how Anoma disentangles the choices of protocol and security. We then define the Anoma application programming model and enumerate several existing and novel decentralised applications that can be built using the novel primitives. Finally, we outline the current components used to instantiate Anoma and list future research directions.
 urlcolor: cyan
+bibliography: whitepaper.bib
 classoption:
     - twocolumn
 header-includes:
@@ -25,11 +26,11 @@ header-includes:
 
 # Background and motivations
 
-The release of the Bitcoin protocol in 2008 marked the beginning of *scriptable settlement*, a category of distributed ledger architectures that is suitable for cryptocurrencies with discrete properties and monetary policies. Although it is not Turing-complete, Bitcoin Script[1] is able to support applications beyond currencies, such as Namecoin and Colored Coins. As discussed in the Ethereum Whitepaper[2], while applications built on scriptable settlement are functional, this architecture requires too many trade-offs that resulted in constrained properties and usability.
+The release of the Bitcoin protocol in 2008 marked the beginning of *scriptable settlement*, a category of distributed ledger architectures that is suitable for cryptocurrencies with discrete properties and monetary policies. Although it is not Turing-complete, Bitcoin Script[@bitcoinscript] is able to support applications beyond currencies, such as Namecoin and Colored Coins. As discussed in the Ethereum Whitepaper[@ethereumwhitepaper], while applications built on scriptable settlement are functional, this architecture requires too many trade-offs that resulted in constrained properties and usability.
 
-The introduction of the Ethereum protocol in 2014 set the precedent for *programmable settlement*, a new category of architectures for constructing decentralised applications that leverage Turing-complete virtual machine execution, which adds substantially more expressivity to the settlement layer. Programmable settlement paved the way for improved versions of applications that scriptable settlement is not able to support, such as fungible tokens (ERC20) or Ethereum Name Service (ENS), which are today well-established versions of the Colored Coin and Namecoin ideas, respectively – in addition to many other desirable applications, such as non-fungible tokens (NFTs), Decentralised Automonous Organisations (DAOs), or the recently introduced Soulbound Tokens (SBTs)[3].
+The introduction of the Ethereum protocol in 2014 set the precedent for *programmable settlement*, a new category of architectures for constructing decentralised applications that leverage Turing-complete virtual machine execution, which adds substantially more expressivity to the settlement layer. Programmable settlement paved the way for improved versions of applications that scriptable settlement is not able to support, such as fungible tokens (ERC20) or Ethereum Name Service (ENS), which are today well-established versions of the Colored Coin and Namecoin ideas, respectively – in addition to many other desirable applications, such as non-fungible tokens (NFTs), Decentralised Automonous Organisations (DAOs), or the recently introduced Soulbound Tokens (SBTs)[@weyl2022decentralized].
 
-Proposed and deployed blockchain protocols since Ethereum's release have brought significant improvements to specific architectural components, for instance: consensus mechanisms (Tendermint[4], Avalanche[5]), Sybil-resistance mechanisms (proof-of-stake, proof-of-storage, etc.), scaling solutions (sharding, rollups, etc.), and cryptographic schemes (zero-knowledge proofs) – but these improvements to constituent primitives do not change the basic architecture of programmable settlement.
+Proposed and deployed blockchain protocols since Ethereum's release have brought significant improvements to specific architectural components, for instance: consensus mechanisms (Tendermint[@buchman2018latest], Avalanche[@rocket2018snowflake]), Sybil-resistance mechanisms (proof-of-stake, proof-of-storage), scaling solutions (sharding, rollups), and cryptographic schemes (zero-knowledge proofs) – but these improvements to constituent primitives do not change the basic architecture of programmable settlement.
 
 While programmable settlement is sufficient for certain applications, many contemporary applications have further requirements. Settlement suffices when the involved parties have already decided what and with whom to settle, but contemporary applications often also require infrastructure for helping potential counterparties discover each other and decide with whom and on what to settle. As a workaround, existing applications have usually adopted an architecture that relies on one or many permissioned or centralised components (such as provers, solvers, or sequencers), usually implemented as Web2 services, in their stack.
 
@@ -101,7 +102,7 @@ For illustration, the table below situates several platforms on these two axes:
 \caption{An analysis of platforms based on their architecture and security model}
 \end{table}
 
-As the table suggests, these dimensions are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It is easier to design a system where they are correlated. If everything is homogeneous, protocols can be fit together neatly, and functionalities including cross-contract communication are easy; whereas if everything is heterogeneous, protocols just agree on the edges of interaction, for instance via the Inter-Blockchain Communication protocol (IBC)[6], and handling the complexity of security is up to the users and application developers.
+As the table suggests, these dimensions are generally quite correlated: homogeneous architectures come with homogeneous security models, and heterogeneous architectures come with heterogeneous security models. It is easier to design a system where they are correlated. If everything is homogeneous, protocols can be fit together neatly, and functionalities including cross-contract communication are easy; whereas if everything is heterogeneous, protocols just agree on the edges of interaction, for instance via the Inter-Blockchain Communication protocol (IBC)[@goes2020interblockchain], and handling the complexity of security is up to the users and application developers.
 
 ### Why decouple these dimensions?
 
@@ -162,7 +163,7 @@ A _solver_ is a node which chooses to observe all or a subset of intents and com
 
 A _transaction_ is complete state transition which acts as a function from the current state to a new state. Transactions follow the declarative programming model and describe the desired end state rather than the imperative steps to compute it. As a result, submitters of transactions, such as solvers or ordinary users, do not have to consider the execution steps when reasoning about the behaviour of their transaction. In existing systems, such as Ethereum or other programmable settlement architectures, submitters have to be aware and trust all intermediary execution steps, including as proxy contracts, since they can modify the imperative computation and change the final state result. With Anoma's declarative approach submitters only have to accurately specify the desired end state without worrying about the compute done in the middle.
 
-Submitters encrypt transactions against the Ferveo Distributed Key Generation (DKG) public key. Nodes receive and gossip only encrypted transactions. After consensus has ordered the encrypted byte strings a $\frac{2}{3}$ majority of consensus nodes decrypts and reveals the original transactions. Ferveo is non-interactive, which means that there are no extra economic security guarantees required in order to enforce the revalation of the original transactions. 
+Submitters encrypt transactions against the Ferveo Distributed Key Generation (DKG) public key [@bebel2022ferveo]. Nodes receive and gossip only encrypted transactions. After consensus has ordered the encrypted byte strings a $\frac{2}{3}$ majority of consensus nodes decrypts and reveals the original transactions. Ferveo is non-interactive, which means that there are no extra economic security guarantees required in order to enforce the revalation of the original transactions. 
 
 ## Mempool
 
@@ -257,7 +258,7 @@ Anoma exposes several new primitives to application developers:
 - Programmable threshold decryption, provided by Ferveo [add reference to Ferveo], which can be used to implement on-demand batching and enforce configurable fairness properties on the processing of application-specific state transitions submitted within a quantised period of logical time.
 - Programmable privacy, provided by zero-knowledge proof systems and fully homomorphic encryption, which can be used to separate verification of properties of data from knowledge of the data itself.
 
-These primitives taken together provide the flexibility required to build complex user-friendly applications which provide the desired game theoretic, privacy, and latency properties, such as decentralised quadractic voting and quadratic funding (user-friendly voting through incentivised DA, settlement through solvers, privacy & receipt-freeness through ZKPs & HE).
+These primitives taken together provide the flexibility required to build complex user-friendly applications which provide the desired game theoretic, privacy, and latency properties, such as decentralised quadractic voting and quadratic funding (user-friendly voting through incentivised data availability, settlement through solvers, privacy & receipt-freeness through ZKPs & HE).
 
 ## Application examples
 
@@ -285,7 +286,7 @@ Operational privacy allows organisations to present (and prove, with verifiabili
 
 Decentralised autonomous organisations (DAOs) hold the twin promises of organisational _operational transparency_, in that the rules for decision-making are articulated and executed in the same code, which anyone can read, and _operational verifiability_, in that any past actions of the organisation can be proven to a third party to be consistent with this ruleset. In present instantiations, however, they obtain transparency and verifiability by execution on a public blockchain, which comes at the cost of privacy. Anoma's architecture allows for the creation of private DAOs which need make no such compromise: they can keep both decision-making rules and data private, visible only to parties within the organisation, but prove arbitrary properties of each to the world as they choose.
 
-In particular, this system could be used to instantiate something like the plural money system [proposed](https://www.radicalxchange.org/media/blog/plural-money-a-new-currency-design/) by Matt Prewitt and RadicalXChange. Communities could themselves create private DAOs, controlled by members of the community, with internal community currencies, community-owned SALSA-allocated assets, and limitations/taxes on wealth transfer outside the community. 
+In particular, this system could be used to instantiate something like the plural money system[@pluralmoney]. Communities could themselves create private DAOs, controlled by members of the community, with internal community currencies, community-owned SALSA-allocated assets, and limitations/taxes on wealth transfer outside the community.
 
 #### Runtime rollups
 
@@ -297,7 +298,7 @@ Consider three friends, Alice, Bob, and Charlie, a hotel operator David, a festi
 
 In the world today, Alice, Bob, and Charlie might go to the festival's website to look for ticket availability, then try to check hotel and train prices across the three possible weekends and compile a spreadsheet in order to figure out what their costs might be. Of course, while they're busy compiling the spreadsheet, someone else looking to travel could book their hotel room or train seat, and they'd be out of luck. Worse, they could book a hotel room for a particular weekend, then find out that the train tickets are unavailable and be unable to change the hotel room (at least without paying a cancellation fee).
 
-Alice, Bob, Charlie, David, Egbert, and Deutsche Bahn could all use Anoma as a substrate for multiparty private bartering. Each party would author an intent with their preferences, and all intents would either be matched atomically (meaning that train tickets, hotel rooms, and festival passes are booked for all of Alice, Bob, and Charlie in correspondence at once) or not at all. Using private bartering, _what_ Alice, Bob, Charlie, etc. want is public, but _who_ they are need not be revealed.
+Alice, Bob, Charlie, David, Eve, and Deutsche Bahn could all use Anoma as a substrate for multiparty private bartering. Each party would author an intent with their preferences, and all intents would either be matched atomically (meaning that train tickets, hotel rooms, and festival passes are booked for all of Alice, Bob, and Charlie in correspondence at once) or not at all. Using private bartering, _what_ all parties want is public, but _who_ they are need not be revealed.
 
 This can also be used for simpler cases, such as fungible tokens. Users can author intents capturing the semantics of market & limit orders, and also more complex algorithms such as an AMM. Expressed in intent form, an AMM order is simply a price curve along which one is willing to swap two assets (`xy = k`). Users can author AMM intents for the full price range or any subrange (similar to Uniswap v3). Unlike on-chain AMMs, this does not require sending transactions or locking any assets up.
 
@@ -313,7 +314,7 @@ Poker also requires privacy, primarily keeping a private hand and periodically r
 
 # Architectural instantiation
 
-The Anoma architecture is complex and requires many individually intricate subcomponents which can be instantiated in a variety of ways with different performance, complexity, and ergonomic tradeoffs. Here we sketch the abstract interfaces required of necessary subcomponents and summarise our current development directions in instantiating them.
+The Anoma architecture requires many individually intricate subcomponents which can be instantiated in a variety of ways with different performance, complexity, and ergonomic tradeoffs. Here we sketch the abstract interfaces required of necessary subcomponents and summarise our current development directions in instantiating them.
 
 ## Gossip
 
@@ -339,7 +340,7 @@ The path authentication system described above can be used to provide a form of 
 
 The consensus component is an algorithm by which many nodes can be abstracted as one virtual node, which will be correct subject to certain assumptions about the correctness of the constituent nodes (generally > 2/3). Just as individual nodes operate a deterministic state machine and send and receive messages in a local total order, virtual nodes created by use of the consensus algorithm operate a deterministic (replicated) state machine and send/receive messages in a total order. The consensus algorithm is responsible for abstracting many nodes into this virtual node by gossiping, ordering, and executing transactions (incoming messages), then finalising the updated states (outgoing messages) in a verifiable manner.
 
-At present, the consensus component in Anoma is instantiated by [Typhon](https://specs.anoma.net/master/architecture/consensus/typhon.html), which draws substantially from [Heterogeneous Paxos](https://arxiv.org/abs/2011.08253), [Narwhal](https://arxiv.org/abs/2105.11827), and [Tendermint](https://arxiv.org/abs/1807.04938v3).
+At present, the consensus component in Anoma is instantiated by Typhon[@typhon], which draws substantially from Heterogeneous Paxos[@sheff2021heterogeneous], Narwhal[@danezis2022narwhal], and Tendermint[@buchman2018latest].
 
 ### Ordering
 
@@ -418,19 +419,19 @@ VampIR is a language and compiler designed to provide an abstract representation
 
 Fractal instances must provide a Sybil resistant mechanism in order to assign voting power in consensus. This can be proof-of-stake, proof-of-authority, hybrid (partially fungible) proof-of-stake, or some form of liquid democracy based on the cryptographic identity substrate.
 
-For further details on the version of proof-of-stake used by the Namada fractal instance, which features bonding, cubic slashing, and auto-compounding reward distribution, see [here](https://specs.namada.net/economics/proof-of-stake.html).
+<!-- For further details on the version of proof-of-stake used by the Namada fractal instance, which features bonding, cubic slashing, and auto-compounding reward distribution, see [here](https://specs.namada.net/economics/proof-of-stake.html).-->
 
 ### Governance
 
 Fractal instances may provide a governance mechanism for enacting irregular state changes by a (somewhat) more regular process than what would take place without any such system. This governance mechanism itself requires Sybil resistance, which can be the same as used in consensus or a slight variant.
 
-For further details on the version of governance used by the Namada fractal instance, which features on-chain and off-chain signalling, see [here](https://specs.namada.net/base-ledger/governance.html).
+<!--For further details on the version of governance used by the Namada fractal instance, which features on-chain and off-chain signalling, see [here](https://specs.namada.net/base-ledger/governance.html).-->
 
 ### Resource pricing
 
 Fracatal instances must provide a Sybil resistance mechanism for performing expensive computational operations upon the receipt of messages which can be sent by anyone in an open network. This Sybil resistance mechanism could be based on fees paid in a network token, identity-based quotas or subscriptions of compute, storage, etc., or low flat per-message limits in combination with network-based rate limiting.
 
-For further details on the version of resource pricing used by the Namada fractal instance, see [here](https://specs.namada.net/economics/fee-system.html).
+<!--For further details on the version of resource pricing used by the Namada fractal instance, see [here](https://specs.namada.net/economics/fee-system.html).-->
 
 # Future directions
 
@@ -447,15 +448,3 @@ Anoma's architecture covers the domain from (abstract) Turing machines operating
 # Acknowledgements
 
 # References
-
-[1] "Script - Bitcoin Wiki", En.bitcoin.it, 2022. [Online]. Available: https://en.bitcoin.it/wiki/Script. [Accessed: 17- Jul- 2022].
-
-[2] ethereum.org. 2014. Ethereum Whitepaper | ethereum.org. [online] Available at: <https://ethereum.org/en/whitepaper/> [Accessed 16 July 2022].
-
-[3] Weyl, E., Ohlhaver, P. and Buterin, V., 2022. Decentralized Society: Finding Web3's Soul. SSRN Electronic Journal,.
-
-[4] Buchman, E., Kwon, J. and Milosevic, Z., 2018. The latest gossip on BFT consensus. [online] arXiv.org. Available at: <https://arxiv.org/abs/1807.04938> [Accessed 16 July 2022].
-
-[5] 2018. Snowflake to Avalanche: A Novel Metastable Consensus Protocol Family for Cryptocurrencies. [ebook] Available at: <https://ipfs.io/ipfs/QmUy4jh5mGNZvLkjies1RWM4YuvJh5o2FYopNPVYwrRVGV> [Accessed 16 July 2022].
-
-[6] Goes, C., 2020. The Interblockchain Communication Protocol: An Overview. [online] arXiv.org. Available at:<https://arxiv.org/pdf/2006.15918.pdf> [Accessed, 17 July 2022]
