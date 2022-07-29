@@ -40,7 +40,7 @@ One emerging approach for applications seeking to avoid centralisation points in
 
 In this paper we present Anoma. Anoma is a unified architecture for full-stack decentralised applications – characterised by its intent-centricity, decentralised counterparty discovery and computational outsourcing of NP search problems to solvers which compute valid state transitions. With this architecture, contemporary applications can be built without compromising permissionlessness, fault-tolerance, censorship-resistance, or privacy.
 
-Anoma's architecture also exposes novel primitives, such as composable privacy, which enables applications to handle transparent, shielded, and private state and operations; and multi-chain atomic settlement, which allows users and applications with different security preferences to obtain atomicity. These and other novel primitives pave the way for the development of applications that cannot be built with existing architectures, several of which we enumerate in section 5.
+Anoma's architecture also exposes novel primitives, such as composable privacy, which enables applications to handle transparent, shielded, and private state and operations; and multi-chain atomic settlement, which allows users and applications with different security preferences to obtain atomicity. These and other novel primitives pave the way for the development of applications that cannot be built with existing architectures, several of which we enumerate in **Section 5: Applications**.
 
 # Architectural design philosophy
 
@@ -81,7 +81,7 @@ Security model refers both to security *in theory*, such as fault tolerance pro
 * Platforms with a *homogeneous* security model have the same security for all applications.
 * Platforms with a *heterogeneous* security model have different security characteristics for different applications.
 
-For illustration, the table below situates several platforms on these two axes:
+For illustration, **Table 1** situates several platforms on these two axes:
 
 \begin{table}[h]
 \centering
@@ -130,9 +130,7 @@ Limited computational speed motivates the separation of the role of solver from 
 
 # Architectural topology
 
-Anoma's architectural topology consists of a set of logical abstractions delineated by their role in dataflow, independent of particluar forms of representation, deployment models, choices of cryptographic implementation, etc. Particular instantiations carry different concrete performance and security implications and should be chosen according to requirements of the specific deployment in question.
-
-We offer a sketch of our choices for different deployments in section 5.
+Anoma's architectural topology consists of a set of logical abstractions delineated by their role in dataflow, independent of particular forms of representation, deployment models, choices of cryptographic implementation, etc, **Figure 1** provides an overview of the architectural topology. Particular instantiations carry different concrete performance and security implications and should be chosen according to requirements of the specific deployment in question. We offer a sketch of our choices for different deployments in **Section 5: Applications**.
 
 \begin{figure*}
   \includegraphics[width=\textwidth,keepaspectratio]{./diagrams/intents-lifecycle.jpeg}
@@ -189,14 +187,16 @@ _Consensus_ is an algorithm for agreement between many parties (some possibly By
 
 An _execution environment_ is an algorithm for taking the current state and a set of transactions and applying those transactions to the state resulting in a new state. Anoma provides a _unified execution environment_ which can handle transparent, shielded, and private state transitions. 
 
--_Transparent_ data is public to execution nodes and observers. 
--_Shielded_ data is private to execution nodes and observers, but known to a single user, who can prove properties of it using zero-knowledge proofs. -_Private_ data is known by no one independently and is computed and stored in encrypted form using various forms of homomorphic encryption. 
+- _Transparent_ data is public to execution nodes and observers. 
+- _Shielded_ data is private to execution nodes and observers, but known to a single user, who can prove properties of it using zero-knowledge proofs.
+- _Private_ data is known by no one independently and is computed and stored in encrypted form using various forms of homomorphic encryption. 
 
 Anoma provides a general framework for reasoning about the privacy of data independently of the kind of verification performed, but performance characteristics of the underlying cryptographic schemes will determine the practical feasibility and execution costs of various applications. It is important to note that the delineation here is purely on the basis of state privacy. Technologies such as zero-knowledge or optimistic rollups can be used with transparent, shielded, and private state transitions.
 
 ## Application
 
-An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. An application consists of: 
+An _application_ is a semantic domain governing the form and logic of a particular partition of state which many users may interact with. **Figure 2** illustrates the interfaces for end-users in Anoma. An application consists of: 
+
 - _State_, which may be partioned across multiple fractal instances and shards within those instances; 
 - _application validity predicates_, which govern changes to the application's state; 
 - _user validity predicate components_, which can be included by the user in order to authorise certain interactions with the application; 
@@ -245,7 +245,7 @@ In Anoma, users distrust applications. Applications are never granted un-restric
 Anoma assumes clients are _stateful_ - they are treated as components of the distributed system. Messages will only be sent once, and can be marked as delivered, in which case they will not be kept around. Message history can be reconstructed by reprocessing historical transaction archives.
 
 
-# Applications
+# Applications {#sec:applications}
 
 The architecture of Anoma is suitable for any application desiring to provide counterparty discovery and settlement for particular forms of preferences over a particular semantic domain. Here we enumerate several primitives that Anoma makes available to application developers which they may find of interest. We then list several examples of existing decentralised applications which could benefit from the Anoma architecture, and then describe a few new decentralised applications which have hitherto been impractical or impossible to develop due to the constraints of existing architectures. Finally, we outline how a few currently centralised applications could be decentralised using this architecture.
 
@@ -253,7 +253,7 @@ The architecture of Anoma is suitable for any application desiring to provide co
 
 Anoma exposes several new primitives to application developers:
 
-- Incentivised data availability, for data which is expected to be used in the creation of future transactions, provided by the intent gossip layer (see section 6).
+- Incentivised data availability, for data which is expected to be used in the creation of future transactions, provided by the intent gossip layer (see **Section 6: Architectural instantiation**).
 - Programmable solvers, provided by intent gossip nodes running solver algorithms, to which can be outsourced the computational task of finding an atomic state transition (transaction) involving many parties which simultaneously satisifies all of their preferences. 
 - Programmable threshold decryption, provided by Ferveo [add reference to Ferveo], which can be used to implement on-demand batching and enforce configurable fairness properties on the processing of application-specific state transitions submitted within a quantised period of logical time.
 - Programmable privacy, provided by zero-knowledge proof systems and fully homomorphic encryption, which can be used to separate verification of properties of data from knowledge of the data itself.
@@ -338,7 +338,7 @@ The path authentication system described above can be used to provide a form of 
 
 ## Consensus
 
-The consensus component is an algorithm by which many nodes can be abstracted as one virtual node, which will be correct subject to certain assumptions about the correctness of the constituent nodes (generally > 2/3). Just as individual nodes operate a deterministic state machine and send and receive messages in a local total order, virtual nodes created by use of the consensus algorithm operate a deterministic (replicated) state machine and send/receive messages in a total order. The consensus algorithm is responsible for abstracting many nodes into this virtual node by gossiping, ordering, and executing transactions (incoming messages), then finalising the updated states (outgoing messages) in a verifiable manner.
+The consensus component is an algorithm by which many nodes can be abstracted as one virtual node, which will be correct subject to certain assumptions about the correctness of the constituent nodes (generally > $\frac{2}{3}$). Just as individual nodes operate a deterministic state machine and send and receive messages in a local total order, virtual nodes created by use of the consensus algorithm operate a deterministic (replicated) state machine and send/receive messages in a total order. The consensus algorithm is responsible for abstracting many nodes into this virtual node by gossiping, ordering, and executing transactions (incoming messages), then finalising the updated states (outgoing messages) in a verifiable manner.
 
 At present, the consensus component in Anoma is instantiated by Typhon[@typhon], which draws substantially from Heterogeneous Paxos[@sheff2021heterogeneous], Narwhal[@danezis2022narwhal], and Tendermint[@buchman2018latest].
 
@@ -447,4 +447,5 @@ Anoma's architecture covers the domain from (abstract) Turing machines operating
 
 # Acknowledgements
 
-# References
+# References\
+
